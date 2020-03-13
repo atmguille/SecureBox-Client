@@ -1,9 +1,18 @@
 import argparse
 import sys
+from log import logger
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SecureBox client', add_help=False)
     parser.add_argument('-h', '--help', action='help', help='muestra este mensaje de ayuda y finaliza')  # TODO: idioma
+    parser.add_argument('--log_level', choices=['debug', 'info', 'warning', 'error', 'critical'], default='info',
+                        help='Indica nivel de los logs. Por defecto, info.')
+    parser.add_argument('--log_file', action="store_true",
+                        help='Si se indica, los logs serán redireccionados a un fichero. Indique nombre de '
+                             'fichero si quiere (log/file.log por defecto)')
+    parser.add_argument('--log_config', action='store_true',
+                        help='Si se indica, carga configuración del log desde log/logging.ini '
+                             'e ignora el resto de parámetros especificados por línea de comandos')
     parser.add_argument('--create_id', nargs=2, metavar=('nombre', 'email'),  # TODO: nargs for alias
                         help='Crea una nueva identidad (par de claves púlica y privada) '
                              'para un usuario con nombre nombre y correo email, y la registra en SecureBox, '
@@ -28,8 +37,12 @@ if __name__ == '__main__':
                              'por otro usuario, cuyo ID es especificado con la opción --dest_id.')
     parser.add_argument('--sign', metavar='fichero', help='Firma un fichero.')
     parser.add_argument('--enc_sign', metavar='fichero', help='Cifra y firma un fichero, combinando funcionalmente las dos opciones anteriores.')
+
     args = parser.parse_args()
 
+    log = logger.set_logger(args)
+
     if not len(sys.argv) > 1:
-        print("No args")
+        log.warning("No arguments specified! Finishing execution...")
+        exit(0)
 
