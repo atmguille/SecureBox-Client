@@ -1,11 +1,13 @@
 import logging
 import logging.config
+import sys
 
 LEVELS = {'debug': logging.DEBUG,
           'info': logging.INFO,
           'warning': logging.WARNING,
           'error': logging.ERROR,
-          'critical': logging.CRITICAL}
+          'critical': logging.CRITICAL,
+          'not set': logging.NOTSET}
 
 
 def set_logger(args):
@@ -15,7 +17,7 @@ def set_logger(args):
     else:
         level = LEVELS.get(args.log_level, logging.NOTSET)
         str_format = '%(asctime)s [%(levelname)s] - %(message)s'
-        logging.basicConfig(level=level, format=str_format)
+        logging.basicConfig(level=level, format=str_format, stream=sys.stdout)
         logger = logging.getLogger(__name__)
         if args.log_file:
             if type(args.log_file) == str:
