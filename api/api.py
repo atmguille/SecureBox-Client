@@ -91,7 +91,7 @@ def file_upload(filename: str) -> str:
         return parsed_response["file_id"]
 
 
-def file_download(file_id: str) -> str:
+def file_download(file_id: str) -> bytes:
     url = base_url + "/files/download"
     body = {"file_id": file_id}
 
@@ -101,7 +101,7 @@ def file_download(file_id: str) -> str:
         parsed_response = json.loads(response.text)
         raise api_exceptions(parsed_response["error_code"])
 
-    return response.text
+    return response.content
 
 
 def file_delete(file_id: str) -> str:
