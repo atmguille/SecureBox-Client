@@ -1,6 +1,8 @@
 import argparse
-import sys
+
+from crypto import *
 from log import logger
+from api.api import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SecureBox client', add_help=False)
@@ -30,21 +32,38 @@ if __name__ == '__main__':
     parser.add_argument('--source_id', metavar='id', type=int, help='ID del emisor del fichero.')
     parser.add_argument('--dest_id', metavar='id', type=int, help='ID del receptor del fichero.')
     parser.add_argument('--list_files', action='store_true', help='Lista todos los ficheros pertenecientes al usuario.')
-    parser.add_argument('--download', metavar='id_fichero', type=int, help='Recupera un fichero con ID id_fichero del sistema')
+    parser.add_argument('--download', metavar='id_fichero', type=int,
+                        help='Recupera un fichero con ID id_fichero del sistema')
     parser.add_argument('--delete_file', metavar='id_fichero', type=int, help='Borra un fichero del sistema.')
     parser.add_argument('--encrypt', metavar='fichero',
                         help='Cifra un fichero, de forma que puede ser descifrado '
                              'por otro usuario, cuyo ID es especificado con la opción --dest_id.')
     parser.add_argument('--sign', metavar='fichero', help='Firma un fichero.')
-    parser.add_argument('--enc_sign', metavar='fichero', help='Cifra y firma un fichero, combinando funcionalmente las dos opciones anteriores.')
+    parser.add_argument('--enc_sign', metavar='fichero',
+                        help='Cifra y firma un fichero, combinando funcionalmente las dos opciones anteriores.')
 
     args = parser.parse_args()
 
     log = logger.set_logger(args)
 
-    if not len(sys.argv) > 1:
-        log.warning("No arguments specified! Finishing execution...")
-        exit(0)
-    elif not 2 <= len(args.create_id) <= 3:
-        log.error("create_id expects 2 arguments (or 3 if alias is present).")
-        exit(1)
+    if args.create_id:
+        log.info(f"Creating a new identity")
+
+        username, email = args.create_id
+        key = rsa_generate_key()
+
+        user_register(username, email, get_public_key(key))
+
+        # TODO ID?
+        user_id = "coronavirus"
+        save_key(key, user_id)
+
+    if args.search_id:
+        log.info(f"Searching {args.search_id}...")
+        for user in user_search(args.search_id):
+            log.info(user)
+
+    if args.delete_id:
+        log.info(f"Deleting {args.delete_id}...")
+        user_delete(args.delete_id)
+        # TODO: la API no nos dice si existe o no existe
