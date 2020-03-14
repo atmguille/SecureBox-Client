@@ -13,7 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('--log_config', action='store_true',
                         help='Si se indica, carga configuración del log desde log/logging.ini '
                              'e ignora el resto de parámetros especificados por línea de comandos')
-    parser.add_argument('--create_id', nargs=2, metavar=('nombre', 'email'),  # TODO: nargs for alias
+    parser.add_argument('--create_id', nargs='*', metavar='nombre email [alias]',  # TODO: better idea??
                         help='Crea una nueva identidad (par de claves púlica y privada) '
                              'para un usuario con nombre nombre y correo email, y la registra en SecureBox, '
                              'para que pueda ser encontrada por otros usuarios. alias es una cadena identificativa opcional.')
@@ -45,4 +45,6 @@ if __name__ == '__main__':
     if not len(sys.argv) > 1:
         log.warning("No arguments specified! Finishing execution...")
         exit(0)
-
+    elif not 2 <= len(args.create_id) <= 3:
+        log.error("create_id expects 2 arguments (or 3 if alias is present).")
+        exit(1)
