@@ -75,6 +75,9 @@ if __name__ == '__main__':
         with open(filename, "rb") as file:
             message = file.read()
 
+            # Insert filename at the beginning
+            message = filename.encode() + '\0'.encode() + message
+
             # Sign message using our private key
             local_key = load_key(source_id)
             signature = sign_message(message, local_key)
@@ -105,7 +108,12 @@ if __name__ == '__main__':
         public_key = RSA.import_key(user_get_public_key(source_id))
         message = verify_signature(signed_message, public_key)
 
-        with open("archivo.txt", "wb") as file:
+        # Extract the filename from the message
+        name_length = message.index('\0'.encode())
+        filename = message[:name_length]
+        message = message[name_length + 1:]
+
+        with open(filename, "wb") as file:
             file.write(message)
 
     if args.encrypt:
