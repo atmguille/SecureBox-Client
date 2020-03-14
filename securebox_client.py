@@ -66,3 +66,43 @@ if __name__ == '__main__':
         log.info(f"Deleting {args.delete_id}...")
         user_delete(args.delete_id)
         # TODO: la API no nos dice si existe o no existe
+
+    if args.upload:
+        filename = args.upload
+        source_id = args.source_id
+        destination_id = args.dest_id
+
+        with open(filename, "rb") as file:
+            message = file.read()
+
+            # Sign message using our private key
+            local_key = load_key(source_id)
+            signed_message = sign_message(message, local_key)
+
+            # Encrypt signed message using the remote public key
+            remote_key = RSA.import_key(user_get_public_key(destination_id)) # TODO: this should be done by user_get...
+            encrypted_message = encrypt_message(signed_message, remote_key)
+
+            # Save and send the encrypted signed message
+            with open(filename + ".crypt", "wb") as encrypted_file:
+                encrypted_file.write(encrypted_message)
+
+            file_upload(filename + ".crypt")
+
+    if args.download:
+        file_id = args.download
+        # TODO: si no meten source_id, que no se verifique la firma
+
+    if args.encrypt:
+        filename = args.encrypt
+        receiver_id = args.dest_id
+        receiver_public_key = RSA.import_key(user_get_public_key(receiver_id))
+
+        with open(filename, "rb") as file:
+            message = file.read()
+            encrypted_message = encrypt_message(message, receiver_public_key)
+
+            with open(filename + ".crypt", "wb") as encrypted_file:
+                encrypted_file.write(encrypted_message)
+
+
