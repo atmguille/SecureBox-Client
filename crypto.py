@@ -40,6 +40,7 @@ def verify_signature(message, sender_public_key):
     verifier = pss.new(sender_public_key)
     try:
         verifier.verify(h, signature)
+        return original_message
     except (ValueError, TypeError):
         raise SignatureNotAuthentic
 
