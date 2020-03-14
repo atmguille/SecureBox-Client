@@ -35,11 +35,11 @@ def sign_message(message):
     return pss.new(rsa_private_key).sign(h)
 
 
-def verify_signature(message, public_key):
-    signature = message[:public_key.size_in_bytes()]  # Assume encryption has been done with same key size
-    original_message = message[public_key.size_in_bytes():]
+def verify_signature(message, sender_public_key):
+    signature = message[:sender_public_key.size_in_bytes()]  # Assume encryption has been done with same key size
+    original_message = message[sender_public_key.size_in_bytes():]
     h = SHA256.new(original_message)
-    verifier = pss.new(public_key)
+    verifier = pss.new(sender_public_key)
     try:
         verifier.verify(h, signature)
     except (ValueError, TypeError):
@@ -65,14 +65,15 @@ def decrypt_message(message):
         raise PrivateKeyNotFound
 
     enc_aes_key = message[:rsa_private_key.size_in_bytes()]  # Assume encryption has been done with same key size
+    enc_message = message[rsa_private_key.size_in_bytes():]
 
     cipher_rsa = PKCS1_OAEP.new(rsa_private_key)
     aes_key_and_iv = cipher_rsa.decrypt(enc_aes_key)
-    iv = aes_key_and_iv[:16]
+    iv = aes_key_and_iv[:16]  # IV is always 16 bytes long when encrypting with AES
     aes_key = aes_key_and_iv[16:]
 
     cipher_aes = AES.new(aes_key, AES.MODE_CBC, iv)
-    return unpad(cipher_aes.decrypt(message[rsa_private_key.size_in_bytes():]), AES.block_size)
+    return unpad(cipher_aes.decrypt(enc_message), AES.block_size)
 
 
 data = b'message secret'
