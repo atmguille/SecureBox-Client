@@ -92,6 +92,20 @@ if __name__ == '__main__':
     if args.download:
         file_id = args.download
         # TODO: si no meten source_id, que no se verifique la firma
+        source_id = args.source_id
+        destination_id = args.dest_id
+
+        # Retrieve encrypted and signed file from server
+        encrypted_message = file_download(file_id)
+        # Get local private key to decrypt the message
+        private_key = load_key(destination_id)
+        signed_message = decrypt_message(encrypted_message, private_key)
+        print(signed_message)
+
+        # Check signature, retrieving the public key of the sender first
+        public_key = RSA.import_key(user_get_public_key(source_id))
+        message = verify_signature(signed_message, public_key)
+        print(message)
 
     if args.encrypt:
         filename = args.encrypt
