@@ -5,7 +5,7 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad, unpad
 from log import logger
-from exceptions import *
+from api.exceptions import *
 
 log = logger.get_logger()
 

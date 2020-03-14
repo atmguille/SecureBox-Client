@@ -1,10 +1,10 @@
 import json
 import requests
 
-from exceptions import *
+from api.exceptions import *
 
 base_url = "https://vega.ii.uam.es:8080/api"
-token = open("token.txt").readline()
+token = open("../token.txt").readline()
 header = {"Authorization": f"Bearer {token}"}
 
 
