@@ -77,11 +77,11 @@ if __name__ == '__main__':
 
             # Sign message using our private key
             local_key = load_key(source_id)
-            signed_message = sign_message(message, local_key)
+            signature = sign_message(message, local_key)
 
             # Encrypt signed message using the remote public key
             remote_key = RSA.import_key(user_get_public_key(destination_id)) # TODO: this should be done by user_get...
-            encrypted_message = encrypt_message(signed_message, remote_key)
+            encrypted_message = encrypt_message(signature + message, remote_key)
 
             # Save and send the encrypted signed message
             with open(filename + ".crypt", "wb") as encrypted_file:
