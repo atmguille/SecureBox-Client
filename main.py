@@ -76,17 +76,17 @@ def file_list() -> list:
 
 def file_upload(filename: str) -> str:
     url = base_url + "/files/upload"
-    f = open(filename, "rb")
-    body = {"ufile": f}
+    with open(filename, "rb") as f:
+        body = {"ufile": f}
 
-    # Note that this is the only function of the API which receives an ordinary POST form instead of a JSON one
-    response = requests.post(url, headers=header, files=body)
-    parsed_response = json.loads(response.text)
+        # Note that this is the only function of the API which receives an ordinary POST form instead of a JSON one
+        response = requests.post(url, headers=header, files=body)
+        parsed_response = json.loads(response.text)
 
-    if response.status_code != 200:
-        raise api_exceptions[parsed_response["error_code"]]
+        if response.status_code != 200:
+            raise api_exceptions[parsed_response["error_code"]]
 
-    return parsed_response["file_id"]
+        return parsed_response["file_id"]
 
 
 def file_download(file_id: str) -> str:
