@@ -53,7 +53,7 @@ class IncorrectArgsException(Exception):
         super().__init__(message)
 
 
-known_exceptions = {
+api_exceptions = {
     "TOK1": WrongTokenException,
     "TOK2": ExpiredTokenException,
     "TOK3": WrongHeaderException,
