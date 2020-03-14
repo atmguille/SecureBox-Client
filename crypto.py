@@ -1,5 +1,6 @@
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
+from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Signature import pss
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Random import get_random_bytes
@@ -10,29 +11,26 @@ from api.exceptions import *
 log = logger.get_logger()
 
 
-def rsa_generate_key(nbits=2048):
-    key = RSA.generate(nbits)
-    with open('keys/rsa_private_key.pem', 'wb') as f:
-        f.write(key.export_key('PEM'))
+def rsa_generate_key(nbits=2048) -> RsaKey:
+    return RSA.generate(nbits)
 
 
-def rsa_get_private_key():
-    with open('keys/rsa_private_key.pem', 'r') as f:
+def save_key(key: RsaKey, user_id: str):
+    with open(f"keys/{user_id}.pem", "wb") as f:
+        f.write(key.export_key("PEM"))
+
+
+def load_key(user_id: str) -> RsaKey:
+    with open(f"keys/{user_id}.pem", "r") as f:
         return RSA.import_key(f.read())
 
 
-def rsa_get_public_key():
-    return rsa_get_private_key().publickey()  # TODO: mejor así o guardarla en un fichero aparte y leerla de ahí?
+def get_public_key(key: RsaKey) -> str:
+    return key.publickey().export_key("PEM").decode("utf-8")
 
 
-def sign_message(message):
-    try:
-        rsa_private_key = rsa_get_private_key()
-    except FileNotFoundError:
-        log.warning("No private key found")
-        raise PrivateKeyNotFound
-    h = SHA256.new(message)
-    return pss.new(rsa_private_key).sign(h)
+def sign_message(message, key: RsaKey):
+    return pss.new(key).sign(SHA256.new(message))
 
 
 def verify_signature(message, sender_public_key):
@@ -47,9 +45,10 @@ def verify_signature(message, sender_public_key):
 
 
 def encrypt_message(message, receiver_public_key, nbits=256) -> bytes:
-    aes_key = get_random_bytes(nbits//8)
+    aes_key = get_random_bytes(nbits // 8)
     cipher_aes = AES.new(aes_key, AES.MODE_CBC)
-    return encrypt_aes_key(cipher_aes.iv + aes_key, receiver_public_key) + cipher_aes.encrypt(pad(message, AES.block_size))
+    return encrypt_aes_key(cipher_aes.iv + aes_key, receiver_public_key) + cipher_aes.encrypt(
+        pad(message, AES.block_size))
 
 
 def encrypt_aes_key(aes_key, receiver_public_key) -> bytes:
@@ -57,17 +56,11 @@ def encrypt_aes_key(aes_key, receiver_public_key) -> bytes:
     return cipher_rsa.encrypt(aes_key)
 
 
-def decrypt_message(message):
-    try:
-        rsa_private_key = rsa_get_private_key()
-    except FileNotFoundError:
-        log.warning("No private key found")
-        raise PrivateKeyNotFound
+def decrypt_message(message, key: RsaKey):
+    enc_aes_key = message[:key.size_in_bytes()]  # Assume encryption has been done with same key size
+    enc_message = message[key.size_in_bytes():]
 
-    enc_aes_key = message[:rsa_private_key.size_in_bytes()]  # Assume encryption has been done with same key size
-    enc_message = message[rsa_private_key.size_in_bytes():]
-
-    cipher_rsa = PKCS1_OAEP.new(rsa_private_key)
+    cipher_rsa = PKCS1_OAEP.new(key)
     aes_key_and_iv = cipher_rsa.decrypt(enc_aes_key)
     iv = aes_key_and_iv[:16]  # IV is always 16 bytes long when encrypting with AES
     aes_key = aes_key_and_iv[16:]
@@ -76,6 +69,7 @@ def decrypt_message(message):
     return unpad(cipher_aes.decrypt(enc_message), AES.block_size)
 
 
+"""
 data = b'message secret'
 rsa_generate_key()
 signature = sign_message(data)
@@ -84,3 +78,4 @@ print(enc_message)
 orig_message = decrypt_message(enc_message)
 print(orig_message)
 verify_signature(orig_message, rsa_get_public_key())
+"""
