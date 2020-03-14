@@ -4,11 +4,11 @@ import requests
 from api.exceptions import *
 
 base_url = "https://vega.ii.uam.es:8080/api"
-token = open("../token.txt").readline()
+token = open("token.txt").readline()
 header = {"Authorization": f"Bearer {token}"}
 
 
-def user_register(username: str, email: str, public_key: str) -> None:
+def user_register(username: str, email: str, public_key: str):
     url = base_url + "/users/register"
     body = {
         "nombre": username,
@@ -21,6 +21,8 @@ def user_register(username: str, email: str, public_key: str) -> None:
 
     if response.status_code != 200:
         raise api_exceptions[parsed_response["error_code"]]
+
+    return parsed_response
 
 
 def user_search(query: str) -> list:
