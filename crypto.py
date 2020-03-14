@@ -35,8 +35,10 @@ def sign_message(message):
     return pss.new(rsa_private_key).sign(h)
 
 
-def verify_signature(message, signature: bytes, public_key):
-    h = SHA256.new(message)
+def verify_signature(message, public_key):
+    signature = message[:public_key.size_in_bytes()]  # Assume encryption has been done with same key size
+    original_message = message[public_key.size_in_bytes():]
+    h = SHA256.new(original_message)
     verifier = pss.new(public_key)
     try:
         verifier.verify(h, signature)
@@ -80,4 +82,4 @@ enc_message = encrypt_message(signature + data, rsa_get_public_key())
 print(enc_message)
 orig_message = decrypt_message(enc_message)
 print(orig_message)
-#verify_signature(orig_message[:2048//8], orig_message[:2048//8], rsa_get_public_key())
+verify_signature(orig_message, rsa_get_public_key())
