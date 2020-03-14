@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from crypto import *
 from log import logger
@@ -39,20 +40,21 @@ if __name__ == '__main__':
 
     log = logger.set_logger(args)
 
-    if not len(sys.argv) > 1:
-        log.warning("No arguments specified! Finishing execution...")
-        exit(0)
-        
     if args.create_id:
         log.info(f"Creating a new identity")
 
         username, email = args.create_id
         key = rsa_generate_key()
 
-        user_register(username, email, get_public_key(key))
+        user = user_register(username, email, get_public_key(key))
+        ts = user["ts"]
 
-        # TODO ID?
-        user_id = "coronavirus"
+        log.info(f"Done, looking for our user ID")
+        users = user_search(email)
+        user_at_server = min(users, key=lambda u: abs(float(u["ts"]) - ts))
+
+        user_id = user_at_server["userID"]
+
         save_key(key, user_id)
 
     if args.search_id:
