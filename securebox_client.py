@@ -100,12 +100,13 @@ if __name__ == '__main__':
         # Get local private key to decrypt the message
         private_key = load_key(destination_id)
         signed_message = decrypt_message(encrypted_message, private_key)
-        print(signed_message)
 
         # Check signature, retrieving the public key of the sender first
         public_key = RSA.import_key(user_get_public_key(source_id))
         message = verify_signature(signed_message, public_key)
-        print(message)
+
+        with open("archivo.txt", "wb") as file:
+            file.write(message)
 
     if args.encrypt:
         filename = args.encrypt
