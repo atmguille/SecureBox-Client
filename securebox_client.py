@@ -83,7 +83,7 @@ if __name__ == '__main__':
             signature = sign_message(message, local_key)
 
             # Encrypt signed message using the remote public key
-            remote_key = RSA.import_key(user_get_public_key(destination_id)) # TODO: this should be done by user_get...
+            remote_key = user_get_public_key(destination_id)
             encrypted_message = encrypt_message(signature + message, remote_key)
 
             # Save and send the encrypted signed message

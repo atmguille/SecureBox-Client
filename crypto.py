@@ -7,6 +7,7 @@ from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad, unpad
 from log import logger
 from api.exceptions import *
+from api import api
 
 log = logger.get_logger()
 
@@ -27,6 +28,10 @@ def load_key(user_id: str) -> RsaKey:
 
 def get_public_key(key: RsaKey) -> str:
     return key.publickey().export_key("PEM").decode("utf-8")
+
+
+def str_to_rsakey(key: str) -> RsaKey:
+    return RSA.import_key(key)
 
 
 def sign_message(message, key: RsaKey):
@@ -80,3 +85,10 @@ orig_message = decrypt_message(enc_message)
 print(orig_message)
 verify_signature(orig_message, rsa_get_public_key())
 """
+
+if __name__ == '__main__':
+
+    with open('test.txt.crypt', 'rb') as f:
+        data = f.read()
+        dec_message = decrypt_message(data, load_key('383112'))
+        print(dec_message)

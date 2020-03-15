@@ -2,6 +2,7 @@ import json
 import requests
 
 from api.exceptions import *
+from crypto import str_to_rsakey, RsaKey
 
 base_url = "https://vega.ii.uam.es:8080/api"
 token = open("token.txt").readline()
@@ -38,7 +39,7 @@ def user_search(query: str) -> list:
     return parsed_response
 
 
-def user_get_public_key(user_id: str) -> str:
+def user_get_public_key(user_id: str) -> RsaKey:
     url = base_url + "/users/getPublicKey"
     body = {"userID": user_id}
 
@@ -48,7 +49,7 @@ def user_get_public_key(user_id: str) -> str:
     if response.status_code != 200:
         raise api_exceptions[parsed_response["error_code"]]
 
-    return parsed_response["publicKey"]
+    return str_to_rsakey(parsed_response["publicKey"])
 
 
 def user_delete(user_id: str) -> str:
