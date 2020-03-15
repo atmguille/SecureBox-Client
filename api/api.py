@@ -1,4 +1,6 @@
 import json
+from typing import Tuple
+
 import requests
 
 from api.exceptions import *
@@ -100,7 +102,7 @@ def file_upload(filename: str, data: bytes = None) -> str:
     return parsed_response["file_id"]
 
 
-def file_download(file_id: str) -> bytes:
+def file_download(file_id: str) -> Tuple[bytes, str]:
     url = base_url + "/files/download"
     body = {"file_id": file_id}
 
@@ -110,7 +112,12 @@ def file_download(file_id: str) -> bytes:
         parsed_response = json.loads(response.text)
         raise api_exceptions(parsed_response["error_code"])
 
-    return response.content
+    # Filename has the following format: Content-Disposition: attachment; filename="<FILENAME>"
+    filename = response.headers["Content-Disposition"]
+    filename = filename[filename.find("filename=\"") + len("filename=\""):]
+    filename = filename[:filename.find('"')]
+
+    return response.content, filename
 
 
 def file_delete(file_id: str) -> str:

@@ -75,9 +75,6 @@ if __name__ == '__main__':
         with open(filename, "rb") as file:
             message = file.read()
 
-            # Insert filename at the beginning
-            #message = filename.encode() + '\0'.encode() + message
-
             # Sign message using our private key
             local_key = load_key(source_id)
             signature = sign_message(message, local_key)
@@ -86,7 +83,7 @@ if __name__ == '__main__':
             remote_key = user_get_public_key(destination_id)
             encrypted_message = encrypt_message(signature + message, remote_key)
 
-            file_upload(filename + ".crypt", encrypted_message)
+            file_upload(filename, encrypted_message)
 
     if args.list_files:
         log.info("Looking for files...")
@@ -100,7 +97,7 @@ if __name__ == '__main__':
         destination_id = args.dest_id
 
         # Retrieve encrypted and signed file from server
-        encrypted_message = file_download(file_id)
+        encrypted_message, filename = file_download(file_id)
         # Get local private key to decrypt the message
         private_key = load_key(destination_id)
         signed_message = decrypt_message(encrypted_message, private_key)
@@ -108,18 +105,6 @@ if __name__ == '__main__':
         # Check signature, retrieving the public key of the sender first
         public_key = user_get_public_key(source_id)
         complete_message = verify_signature(signed_message, public_key)
-
-        # Extract the filename from the message
-        name_length = complete_message.find('\0'.encode())
-        filename = complete_message[:name_length]
-        message = complete_message[name_length + 1:]
-
-        if name_length == -1 or not str(filename).isprintable():
-            log.warning("'\\0' not found or extracted filename is not printable. "
-                        "This may be because the sender did not specify a filename "
-                        "at the begging of the message. Complete message will be dumped to dump.bytes")
-            filename = "dump.bytes"
-            message = complete_message
 
         with open(filename, "wb") as file:
             file.write(message)
