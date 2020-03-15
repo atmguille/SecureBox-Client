@@ -2,7 +2,8 @@ import json
 import requests
 
 from api.exceptions import *
-from crypto import str_to_rsakey, RsaKey
+import crypto
+from io import BytesIO
 
 base_url = "https://vega.ii.uam.es:8080/api"
 token = open("token.txt").readline()
@@ -39,7 +40,7 @@ def user_search(query: str) -> list:
     return parsed_response
 
 
-def user_get_public_key(user_id: str) -> RsaKey:
+def user_get_public_key(user_id: str) -> crypto.RsaKey:
     url = base_url + "/users/getPublicKey"
     body = {"userID": user_id}
 
@@ -49,7 +50,7 @@ def user_get_public_key(user_id: str) -> RsaKey:
     if response.status_code != 200:
         raise api_exceptions[parsed_response["error_code"]]
 
-    return str_to_rsakey(parsed_response["publicKey"])
+    return crypto.str_to_rsakey(parsed_response["publicKey"])
 
 
 def user_delete(user_id: str) -> str:
@@ -77,19 +78,26 @@ def file_list() -> list:
     return parsed_response["files_list"]
 
 
-def file_upload(filename: str) -> str:
+def file_upload(filename: str, data: bytes = None) -> str:
     url = base_url + "/files/upload"
-    with open(filename, "rb") as f:
-        body = {"ufile": f}
 
-        # Note that this is the only function of the API which receives an ordinary POST form instead of a JSON one
-        response = requests.post(url, headers=header, files=body)
-        parsed_response = json.loads(response.text)
+    if data:
+        file = BytesIO(data)
+        file.name = filename
+    else:
+        file = open(filename, "rb")
 
-        if response.status_code != 200:
-            raise api_exceptions[parsed_response["error_code"]]
+    body = {"ufile": file}
 
-        return parsed_response["file_id"]
+    # Note that this is the only function of the API which receives an ordinary POST form instead of a JSON one
+    response = requests.post(url, headers=header, files=body)
+    file.close()
+    parsed_response = json.loads(response.text)
+
+    if response.status_code != 200:
+        raise api_exceptions[parsed_response["error_code"]]
+
+    return parsed_response["file_id"]
 
 
 def file_download(file_id: str) -> bytes:

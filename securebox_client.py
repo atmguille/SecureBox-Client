@@ -86,11 +86,7 @@ if __name__ == '__main__':
             remote_key = user_get_public_key(destination_id)
             encrypted_message = encrypt_message(signature + message, remote_key)
 
-            # Save and send the encrypted signed message
-            with open(filename + ".crypt", "wb") as encrypted_file:
-                encrypted_file.write(encrypted_message)
-
-            file_upload(filename + ".crypt")
+            file_upload(filename + ".crypt", encrypted_message)
 
     if args.list_files:
         log.info("Looking for files...")
