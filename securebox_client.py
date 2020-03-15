@@ -115,7 +115,7 @@ if __name__ == '__main__':
 
         # Extract the filename from the message
         name_length = message.index('\0'.encode())
-        filename = message[:name_length]
+        filename = message[:name_length]  # TODO: printable
         message = message[name_length + 1:]
 
         with open(filename, "wb") as file:
@@ -137,4 +137,17 @@ if __name__ == '__main__':
             with open(filename + ".crypt", "wb") as encrypted_file:
                 encrypted_file.write(encrypted_message)
 
+    if args.sign:
+        filename = args.sign
+        source_id = args.source_id  # TODO: without id
 
+        with open(filename, "rb") as file:
+            message = file.read()
+
+            # Sign message using our private key
+            local_key = load_key(source_id)
+            signature = sign_message(message, local_key)
+
+            # Save signed message
+            with open(filename + ".crypt", "wb") as signed_file:  # TODO: extension .crypt si solo está firmado?
+                signed_file.write(signature + message)
