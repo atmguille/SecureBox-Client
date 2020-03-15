@@ -110,7 +110,7 @@ if __name__ == '__main__':
         signed_message = decrypt_message(encrypted_message, private_key)
 
         # Check signature, retrieving the public key of the sender first
-        public_key = RSA.import_key(user_get_public_key(source_id))
+        public_key = user_get_public_key(source_id)
         message = verify_signature(signed_message, public_key)
 
         # Extract the filename from the message
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     if args.encrypt:
         filename = args.encrypt
         receiver_id = args.dest_id
-        receiver_public_key = RSA.import_key(user_get_public_key(receiver_id))
+        receiver_public_key = user_get_public_key(receiver_id)
 
         with open(filename, "rb") as file:
             message = file.read()
