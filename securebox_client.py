@@ -76,7 +76,7 @@ if __name__ == '__main__':
             message = file.read()
 
             # Insert filename at the beginning
-            message = filename.encode() + '\0'.encode() + message
+            #message = filename.encode() + '\0'.encode() + message
 
             # Sign message using our private key
             local_key = load_key(source_id)
@@ -107,12 +107,19 @@ if __name__ == '__main__':
 
         # Check signature, retrieving the public key of the sender first
         public_key = user_get_public_key(source_id)
-        message = verify_signature(signed_message, public_key)
+        complete_message = verify_signature(signed_message, public_key)
 
         # Extract the filename from the message
-        name_length = message.index('\0'.encode())
-        filename = message[:name_length]  # TODO: printable
-        message = message[name_length + 1:]
+        name_length = complete_message.find('\0'.encode())
+        filename = complete_message[:name_length]
+        message = complete_message[name_length + 1:]
+
+        if name_length == -1 or not str(filename).isprintable():
+            log.warning("'\\0' not found or extracted filename is not printable. "
+                        "This may be because the sender did not specify a filename "
+                        "at the begging of the message. Complete message will be dumped to dump.bytes")
+            filename = "dump.bytes"
+            message = complete_message
 
         with open(filename, "wb") as file:
             file.write(message)
