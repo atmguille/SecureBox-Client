@@ -83,7 +83,8 @@ if __name__ == '__main__':
             remote_key = user_get_public_key(destination_id)
             encrypted_message = encrypt_message(signature + message, remote_key)
 
-            file_upload(filename, encrypted_message)
+            file_id = file_upload(filename, encrypted_message)
+            log.info(f"Successfully signed, crypted and uploaded file {filename} which got ID {file_id}")
 
     if args.list_files:
         log.info("Looking for files...")
@@ -108,6 +109,8 @@ if __name__ == '__main__':
 
         with open(filename, "wb") as file:
             file.write(message)
+
+        log.info(f"File {filename} downloaded, decrypted and verified successfully")
 
     if args.delete_file:
         log.info(f"Deleting file {args.delete_file}...")
