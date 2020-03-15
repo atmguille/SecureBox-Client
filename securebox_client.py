@@ -154,3 +154,7 @@ if __name__ == '__main__':
             # Save signed message
             with open(filename + ".crypt", "wb") as signed_file:  # TODO: extension .crypt si solo está firmado?
                 signed_file.write(signature + message)
+
+    if args.enc_sign:
+        # TODO
+        pass
