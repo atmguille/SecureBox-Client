@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
         # Check signature, retrieving the public key of the sender first
         public_key = user_get_public_key(source_id)
-        complete_message = verify_signature(signed_message, public_key)
+        message = verify_signature(signed_message, public_key)
 
         with open(filename, "wb") as file:
             file.write(message)
