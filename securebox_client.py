@@ -92,6 +92,11 @@ if __name__ == '__main__':
 
             file_upload(filename + ".crypt")
 
+    if args.list_files:
+        log.info("Looking for files...")
+        for file in file_list():
+            log.info(f"FileID: {file['fileID']}. Filename: {file['fileName']}")
+
     if args.download:
         file_id = args.download
         # TODO: si no meten source_id, que no se verifique la firma
@@ -115,6 +120,10 @@ if __name__ == '__main__':
 
         with open(filename, "wb") as file:
             file.write(message)
+
+    if args.delete_file:
+        log.info(f"Deleting file {args.delete_file}...")
+        log.info(f"Correctly deleted file {file_delete(args.delete_file)}")
 
     if args.encrypt:
         filename = args.encrypt
