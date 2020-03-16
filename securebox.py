@@ -1,8 +1,10 @@
 import logging
 
+from Crypto.PublicKey.RSA import RsaKey
+
 from api.api import API
 from bundle import Bundle
-from crypto import rsa_generate_key
+from crypto import rsa_generate_key, sign_message, encrypt_message
 
 
 class SecureBox:
@@ -29,3 +31,32 @@ class SecureBox:
         bundle.set_user_id(user_id)
         # Save data to disk TODO: más tarde?
         bundle.write()
+
+    def search_id(self, query: str):
+        logging.info(f"Searching query {query}")
+        users = self.api.user_search(query)
+
+        for user in users:
+            logging.info(user)
+
+    def delete_id(self, user_id: str):
+        logging.info(f"Deleting {user_id}...")
+        self.api.user_delete(user_id)
+
+    def upload(self, filename: str, destination_id: str, private_key: RsaKey):
+        with open(filename, "rb") as file:
+            logging.info(f"Reading file {filename}")
+            message = file.read()
+
+            # Sign message using our private key
+            logging.info(f"Signing file {filename}")
+            signature = sign_message(message, private_key)
+
+            logging.info(f"Encrypting file {filename}")
+            # Encrypt signed message using the remote public key
+            remote_key = self.api.user_get_public_key(destination_id)
+            encrypted_message = encrypt_message(signature + message, remote_key)
+
+            logging.info(f"Sending file {filename}")
+            file_id = self.api.file_upload(filename, encrypted_message)
+            logging.info(f"Successfully sent {filename} which got ID {file_id}")
