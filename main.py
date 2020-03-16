@@ -1,11 +1,9 @@
 import argparse
-import configparser
 
-from crypto import *
 from log import logger
-from api.api import *
+from securebox import *
 
-CONFIGURATION_FILE = "bundle.ini"
+from securebox import SecureBoxClient
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SecureBox client')
@@ -42,104 +40,59 @@ if __name__ == '__main__':
 
     log = logger.set_logger(args)
 
-    # Try to read the configuration file
-    config = configparser.ConfigParser()
-    try:
-        with open(CONFIGURATION_FILE) as f:
-            config.read_file(f)
-    except IOError as e:
-        log.warning(f"File {CONFIGURATION_FILE} not found, creating one...")
-        print("Insert token: ")
-        token = input()
-        print("Insert username: ")
-        username = input()
-        print("Insert email: ")
-        email = input()
+    # Try to read the ini file to retrieve the token
+    bundle = Bundle()
+    if bundle.initialization_needed():
+        logging.warning(f"File {Bundle.filename} not found... Creating ID...")
 
-        api = API(token)
+        token = input("Insert token: ")
+        bundle.set_token(token)
+        username = input("Insert username: ")
+        email = input("Insert email: ")
 
-    exit(0)
+        sb = SecureBoxClient(token)
+        sb.create_id(bundle, username, email)
+    else:
+        token = bundle.get_token()
+        sb = SecureBoxClient(token)
 
     if args.create_id:
-        log.info(f"Creating a new identity")
-
         username, email = args.create_id
-        key = rsa_generate_key()
-
-        user = user_register(username, email, get_public_key(key))
-        ts = user["ts"]
-
-        log.info(f"Done, looking for our user ID")
-        users = user_search(email)
-        user_at_server = min(users, key=lambda u: abs(float(u["ts"]) - ts))
-
-        user_id = user_at_server["userID"]
-
-        save_key(key, user_id)
+        sb.create_id(bundle, username, email)
 
     if args.search_id:
-        log.info(f"Searching {args.search_id}...")
-        for user in user_search(args.search_id):
-            log.info(user)
+        query = args.search_id
+        sb.search_id(query)
 
     if args.delete_id:
-        log.info(f"Deleting {args.delete_id}...")
-        user_delete(args.delete_id)
-        # TODO: la API no nos dice si existe o no existe
+        user_id = bundle.get_user_id()
+        sb.delete_id(user_id)
 
     if args.upload:
         filename = args.upload
-        source_id = args.source_id
         destination_id = args.dest_id
+        private_key = bundle.get_key()
 
-        with open(filename, "rb") as file:
-            message = file.read()
-
-            # Sign message using our private key
-            local_key = load_key(source_id)
-            signature = sign_message(message, local_key)
-
-            # Encrypt signed message using the remote public key
-            remote_key = user_get_public_key(destination_id)
-            encrypted_message = encrypt_message(signature + message, remote_key)
-
-            file_id = file_upload(filename, encrypted_message)
-            log.info(f"Successfully signed, crypted and uploaded file {filename} which got ID {file_id}")
+        sb.upload(filename, destination_id, private_key)
 
     if args.list_files:
-        log.info("Looking for files...")
-        for file in file_list():
-            log.info(f"FileID: {file['fileID']}. Filename: {file['fileName']}")
+       sb.list_files()
 
     if args.download:
         file_id = args.download
-        # TODO: si no meten source_id, que no se verifique la firma
         source_id = args.source_id
-        destination_id = args.dest_id
+        private_key = bundle.get_key()
 
-        # Retrieve encrypted and signed file from server
-        encrypted_message, filename = file_download(file_id)
-        # Get local private key to decrypt the message
-        private_key = load_key(destination_id)
-        signed_message = decrypt_message(encrypted_message, private_key)
-
-        # Check signature, retrieving the public key of the sender first
-        public_key = user_get_public_key(source_id)
-        message = verify_signature(signed_message, public_key)
-
-        with open(filename, "wb") as file:
-            file.write(message)
-
-        log.info(f"File {filename} downloaded, decrypted and verified successfully")
+        sb.download(file_id, source_id, private_key)
 
     if args.delete_file:
-        log.info(f"Deleting file {args.delete_file}...")
-        log.info(f"Correctly deleted file {file_delete(args.delete_file)}")
+        file_id = args.delete_file
+        sb.delete_file(file_id)
 
     if args.encrypt:
         filename = args.encrypt
         receiver_id = args.dest_id
-        receiver_public_key = user_get_public_key(receiver_id)
+        receiver_public_key = sb.api.user_get_public_key(receiver_id)
 
         with open(filename, "rb") as file:
             message = file.read()
@@ -150,19 +103,29 @@ if __name__ == '__main__':
 
     if args.sign:
         filename = args.sign
-        source_id = args.source_id  # TODO: without id
+        key = bundle.get_key()
 
         with open(filename, "rb") as file:
+            logging.info(f"Opening file {filename}")
             message = file.read()
 
             # Sign message using our private key
-            local_key = load_key(source_id)
-            signature = sign_message(message, local_key)
+            signature = sign_message(message, key)
 
             # Save signed message
-            with open(filename + ".crypt", "wb") as signed_file:  # TODO: extension .crypt si solo está firmado?
+            with open(filename + ".signed", "wb") as signed_file:
                 signed_file.write(signature + message)
 
     if args.enc_sign:
-        # TODO
-        pass
+        filename = args.enc_sign
+        receiver_id = args.dest_id
+        receiver_public_key = sb.api.user_get_public_key(receiver_id)
+        private_key = bundle.get_key()
+
+        with open(filename, "rb") as file:
+            message = file.read()
+            signature = sign_message(message, private_key)
+            encrypted_message = encrypt_message(signature + message, receiver_public_key)
+
+            with open(filename + ".signed.crypt", "wb") as encrypted_file:
+                encrypted_file.write(encrypted_message)
