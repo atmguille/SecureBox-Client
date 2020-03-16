@@ -3,9 +3,9 @@ from io import BytesIO
 from typing import Tuple
 
 import requests
+from Crypto.PublicKey import RSA
 from Crypto.PublicKey.RSA import RsaKey
 
-import crypto
 from api.exceptions import *
 
 
@@ -43,7 +43,7 @@ class API:
 
         return parsed_response
 
-    def user_get_public_key(self, user_id: str) -> crypto.RsaKey:
+    def user_get_public_key(self, user_id: str) -> RsaKey:
         url = API.base_url + "/users/getPublicKey"
         body = {"userID": user_id}
 
@@ -53,7 +53,7 @@ class API:
         if response.status_code != 200:
             raise api_exceptions[parsed_response["error_code"]]
 
-        return crypto.str_to_rsakey(parsed_response["publicKey"])
+        return RSA.import_key(parsed_response["publicKey"])
 
     def user_delete(self, user_id: str) -> str:
         url = API.base_url + "/users/delete"
