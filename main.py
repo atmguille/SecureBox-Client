@@ -38,8 +38,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    log = logger.set_logger(args)
-
     # Try to read the ini file to retrieve the token
     bundle = Bundle()
     if bundle.initialization_needed():
