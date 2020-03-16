@@ -1,4 +1,5 @@
 import logging
+import os
 
 from Crypto.PublicKey.RSA import RsaKey
 
@@ -6,8 +7,12 @@ from api.api import API
 from bundle import Bundle
 from crypto import rsa_generate_key, sign_message, encrypt_message, decrypt_message, verify_signature
 
+logging.basicConfig(level=logging.INFO)
+
 
 class SecureBoxClient:
+    received_folder = "received"
+
     def __init__(self, token):
         self.api = API(token)
 
@@ -76,11 +81,12 @@ class SecureBoxClient:
         public_key = self.api.user_get_public_key(source_id)
         message = verify_signature(signed_message, public_key)
 
-        logging.info(f"Signature checked, writing file to disk...")
-        with open(filename, "wb") as file:
+        if not os.path.exists(SecureBoxClient.received_folder):
+            os.mkdir(SecureBoxClient.received_folder)
+        logging.info(f"Signature checked, writing file to {SecureBoxClient.received_folder}/{filename}...")
+        with open(SecureBoxClient.received_folder + '/' + filename, "wb") as file:
             file.write(message)
 
     def delete_file(self, file_id: str):
         logging.info(f"Deleting file {file_id}...")
         self.api.file_delete(file_id)
-
