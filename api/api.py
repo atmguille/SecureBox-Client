@@ -3,6 +3,7 @@ from io import BytesIO
 from typing import Tuple
 
 import requests
+from Crypto.PublicKey.RSA import RsaKey
 
 import crypto
 from api.exceptions import *
@@ -14,12 +15,12 @@ class API:
     def __init__(self, token):
         self.header = {"Authorization": f"Bearer {token}"}
 
-    def user_register(self, username: str, email: str, public_key: str):
+    def user_register(self, username: str, email: str, public_key: RsaKey):
         url = API.base_url + "/users/register"
         body = {
             "nombre": username,
             "email": email,
-            "publicKey": public_key
+            "publicKey": public_key.export_key("PEM")
         }
 
         response = requests.post(url, headers=self.header, json=body)
