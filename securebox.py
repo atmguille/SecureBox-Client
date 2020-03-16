@@ -4,10 +4,10 @@ from Crypto.PublicKey.RSA import RsaKey
 
 from api.api import API
 from bundle import Bundle
-from crypto import rsa_generate_key, sign_message, encrypt_message
+from crypto import rsa_generate_key, sign_message, encrypt_message, decrypt_message, verify_signature
 
 
-class SecureBox:
+class SecureBoxClient:
     def __init__(self, token):
         self.api = API(token)
 
@@ -65,3 +65,22 @@ class SecureBox:
         logging.info("Listing uploaded files...")
         for file in self.api.file_list():
             logging.info(file)
+
+    def download(self, file_id: str, source_id: str, private_key: RsaKey):
+        logging.info(f"Retrieving file with ID {file_id}...")
+        encrypted_message, filename = self.api.file_download(file_id)
+        logging.info(f"Successfully downloaded {filename}, decrypting it now...")
+        signed_message = decrypt_message(encrypted_message, private_key)
+
+        logging.info(f"Successfully decrypted {filename}, checking signature...")
+        public_key = self.api.user_get_public_key(source_id)
+        message = verify_signature(signed_message, public_key)
+
+        logging.info(f"Signature checked, writing file to disk...")
+        with open(filename, "wb") as file:
+            file.write(message)
+
+    def delete_file(self, file_id: str):
+        logging.info(f"Deleting file {file_id}...")
+        self.api.file_delete(file_id)
+
