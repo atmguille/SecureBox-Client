@@ -1,9 +1,11 @@
 import argparse
-import sys
+import configparser
 
 from crypto import *
 from log import logger
 from api.api import *
+
+CONFIGURATION_FILE = "bundle.ini"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SecureBox client')
@@ -39,6 +41,24 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     log = logger.set_logger(args)
+
+    # Try to read the configuration file
+    config = configparser.ConfigParser()
+    try:
+        with open(CONFIGURATION_FILE) as f:
+            config.read_file(f)
+    except IOError as e:
+        log.warning(f"File {CONFIGURATION_FILE} not found, creating one...")
+        print("Insert token: ")
+        token = input()
+        print("Insert username: ")
+        username = input()
+        print("Insert email: ")
+        email = input()
+
+        api = API(token)
+
+    exit(0)
 
     if args.create_id:
         log.info(f"Creating a new identity")
