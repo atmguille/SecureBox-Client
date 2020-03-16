@@ -60,3 +60,8 @@ class SecureBox:
             logging.info(f"Sending file {filename}")
             file_id = self.api.file_upload(filename, encrypted_message)
             logging.info(f"Successfully sent {filename} which got ID {file_id}")
+
+    def list_files(self):
+        logging.info("Listing uploaded files...")
+        for file in self.api.file_list():
+            logging.info(file)
