@@ -20,7 +20,7 @@ class API:
         body = {
             "nombre": username,
             "email": email,
-            "publicKey": public_key.export_key("PEM")
+            "publicKey": public_key.export_key("PEM").decode()
         }
 
         response = requests.post(url, headers=self.header, json=body)
