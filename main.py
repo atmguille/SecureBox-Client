@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--dest_id', metavar='id', help='Receiver\'s ID.')
     parser.add_argument('--list_files', action='store_true', help='List all the files owned by the user.')
     parser.add_argument('--download', metavar='file_id', help='Downloads the file with the specified file_id')
-    parser.add_argument('--delete_file', metavar='file_id', help='Deletes the file with the specified file_id')
+    parser.add_argument('--delete_files', metavar='file_id', help='Deletes the files with the specified file_id\'s', nargs="*")
     parser.add_argument('--encrypt', metavar='file',
                         help='Encrypts a file so that it can be decrypted by the user whose id is specified by --dest_id.')
     parser.add_argument('--sign', metavar='file', help='Signs the file')
@@ -80,9 +80,9 @@ if __name__ == '__main__':
 
         sb.download(file_id, source_id, private_key)
 
-    if args.delete_file:
-        file_id = args.delete_file
-        sb.delete_file(file_id)
+    if args.delete_files:
+        files_id = args.delete_file
+        sb.delete_files(*files_id)
 
     if args.encrypt:
         filename = args.encrypt

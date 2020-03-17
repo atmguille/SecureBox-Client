@@ -1,5 +1,6 @@
 import logging
 import os
+from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Thread
 
 from Crypto.PublicKey.RSA import RsaKey
@@ -96,9 +97,11 @@ class SecureBoxClient:
         with open(SecureBoxClient.received_folder + '/' + filename, "wb") as file:
             file.write(message)
 
-    def delete_file(self, file_id: str):
-        logging.info(f"Deleting file {file_id}...")
-        self.api.file_delete(file_id)
+    def delete_files(self, *files_id: str):
+        with ThreadPoolExecutor(max_workers=len(files_id)) as pool:
+            for file_id in files_id:
+                logging.info(f"Deleting file {file_id}...")
+                pool.submit(self.api.file_delete, file_id)
 
     def local_crypto(self, filename: str, private_key: RsaKey = None, receiver_id: str = None):
         with open(filename, "rb") as f:
