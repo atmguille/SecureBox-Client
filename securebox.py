@@ -98,6 +98,8 @@ class SecureBoxClient:
             file.write(message)
 
     def delete_files(self, *files_id: str):
+        if "all" in files_id:
+            files_id = [file["fileID"] for file in self.api.file_list()]
         with ThreadPoolExecutor(max_workers=len(files_id)) as pool:
             for file_id in files_id:
                 logging.info(f"Deleting file {file_id}...")
