@@ -1,9 +1,6 @@
 import argparse
 
-from log import logger
 from securebox import *
-
-from securebox import SecureBoxClient
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SecureBox client')
@@ -74,7 +71,7 @@ if __name__ == '__main__':
         sb.upload(filename, destination_id, private_key)
 
     if args.list_files:
-       sb.list_files()
+        sb.list_files()
 
     if args.download:
         file_id = args.download
@@ -90,40 +87,18 @@ if __name__ == '__main__':
     if args.encrypt:
         filename = args.encrypt
         receiver_id = args.dest_id
-        receiver_public_key = sb.api.user_get_public_key(receiver_id)
 
-        with open(filename, "rb") as file:
-            message = file.read()
-            encrypted_message = encrypt_message(message, receiver_public_key)
-
-            with open(filename + ".crypt", "wb") as encrypted_file:
-                encrypted_file.write(encrypted_message)
+        sb.local_crypto(filename, receiver_id=receiver_id)
 
     if args.sign:
         filename = args.sign
-        key = bundle.get_key()
+        private_key = bundle.get_key()
 
-        with open(filename, "rb") as file:
-            logging.info(f"Opening file {filename}")
-            message = file.read()
-
-            # Sign message using our private key
-            signature = sign_message(message, key)
-
-            # Save signed message
-            with open(filename + ".signed", "wb") as signed_file:
-                signed_file.write(signature + message)
+        sb.local_crypto(filename, private_key=private_key)
 
     if args.enc_sign:
         filename = args.enc_sign
-        receiver_id = args.dest_id
-        receiver_public_key = sb.api.user_get_public_key(receiver_id)
         private_key = bundle.get_key()
+        receiver_id = args.dest_id
 
-        with open(filename, "rb") as file:
-            message = file.read()
-            signature = sign_message(message, private_key)
-            encrypted_message = encrypt_message(signature + message, receiver_public_key)
-
-            with open(filename + ".signed.crypt", "wb") as encrypted_file:
-                encrypted_file.write(encrypted_message)
+        sb.local_crypto(filename, private_key=private_key, receiver_id=receiver_id)

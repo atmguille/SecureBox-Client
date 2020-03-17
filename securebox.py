@@ -99,3 +99,32 @@ class SecureBoxClient:
     def delete_file(self, file_id: str):
         logging.info(f"Deleting file {file_id}...")
         self.api.file_delete(file_id)
+
+    def local_crypto(self, filename: str, private_key: RsaKey = None, receiver_id: str = None):
+        with open(filename, "rb") as f:
+            logging.info(f"Opening file {filename}...")
+            message = f.read()
+
+            # Sign the message using our private key if provided
+            if private_key:
+                logging.info("Signing file...")
+                signature = sign_message(message, private_key)
+                message = signature + message
+
+            # Encrypt the message using the remote public key if provided
+            if receiver_id:
+                logging.info(f"Retrieving {receiver_id}'s public key...")
+                public_key = self.api.user_get_public_key(receiver_id)
+                logging.info("Encrypting file...")
+                message = encrypt_message(message, public_key)
+
+            # Save the file to disk
+            output_filename = filename
+            if private_key:
+                output_filename += ".signed"
+            if receiver_id:
+                output_filename += ".crypt"
+
+            logging.info(f"Saving file {output_filename} to disk")
+            with open(output_filename, "wb") as output_file:
+                output_file.write(message)
