@@ -81,7 +81,7 @@ if __name__ == '__main__':
         sb.download(file_id, source_id, private_key)
 
     if args.delete_files:
-        files_id = args.delete_file
+        files_id = args.delete_files
         sb.delete_files(*files_id)
 
     if args.encrypt:
