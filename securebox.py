@@ -1,5 +1,6 @@
 import logging
 import os
+from threading import Thread
 
 from Crypto.PublicKey.RSA import RsaKey
 
@@ -73,12 +74,20 @@ class SecureBoxClient:
 
     def download(self, file_id: str, source_id: str, private_key: RsaKey):
         logging.info(f"Retrieving file with ID {file_id}...")
+
+        # Download the public key of the sender in parallel with the encrypted file for maximum performance
+        public_key = []
+        thread = Thread(target=lambda: public_key.append(self.api.user_get_public_key(source_id)))
+        thread.start()
+
         encrypted_message, filename = self.api.file_download(file_id)
         logging.info(f"Successfully downloaded {filename}, decrypting it now...")
         signed_message = decrypt_message(encrypted_message, private_key)
 
         logging.info(f"Successfully decrypted {filename}, checking signature...")
-        public_key = self.api.user_get_public_key(source_id)
+        # Wait until the public key has been retrieved
+        thread.join()
+        public_key = public_key[0]
         message = verify_signature(signed_message, public_key)
 
         if not os.path.exists(SecureBoxClient.received_folder):
