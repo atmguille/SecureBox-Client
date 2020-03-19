@@ -10,7 +10,7 @@ if __name__ == '__main__':
                         help='If present, log will be redirected to a file. Add file name if wanted, file.log by default')
     parser.add_argument('--log_config', action='store_true',
                         help='If present, log config will be loaded from logging.ini, ignoring other config specified through command line')
-    parser.add_argument('--create_id', nargs=2, metavar=('name', 'email'),  # TODO: alias
+    parser.add_argument('--create_id', nargs=2, metavar=('name', 'email'),
                         help='Creates a new identity (public and private key pair) for a user with name and email specified. '
                              'The user is then registered in SecureBox, so it can be found from other users')
     parser.add_argument('--search_id', metavar='string',
