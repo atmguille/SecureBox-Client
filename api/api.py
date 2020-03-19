@@ -107,7 +107,7 @@ class API:
 
         if response.status_code != 200:
             parsed_response = json.loads(response.text)
-            raise api_exceptions(parsed_response["error_code"])
+            raise api_exceptions[parsed_response["error_code"]]
 
         # Filename has the following format: Content-Disposition: attachment; filename="<FILENAME>"
         filename = response.headers["Content-Disposition"]
