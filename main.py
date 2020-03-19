@@ -32,6 +32,8 @@ if __name__ == '__main__':
                         help='Encrypts a file so that it can be decrypted by the user whose id is specified by --dest_id.')
     parser.add_argument('--sign', metavar='file', help='Signs the file')
     parser.add_argument('--enc_sign', metavar='file', help='Encrypts and signs a file.')
+    parser.add_argument('--decrypt', metavar='file',
+                        help='Decrypts a file sent by user whose id is specified by --source_id, verifying its signature')
 
     args = parser.parse_args()
 
@@ -65,7 +67,11 @@ if __name__ == '__main__':
 
     if args.upload:
         filename = args.upload
-        destination_id = args.dest_id
+        if args.dest_id:
+            destination_id = args.dest_id
+        else:
+            logging.error("You must specify the ID of the receiver in dest_id")
+            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
         private_key = bundle.get_key()
 
         sb.upload(filename, destination_id, private_key)
@@ -75,7 +81,11 @@ if __name__ == '__main__':
 
     if args.download:
         file_id = args.download
-        source_id = args.source_id
+        if args.source_id:
+            source_id = args.source_id
+        else:
+            logging.error("You must specify the ID of the sender in source_id")
+            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
         private_key = bundle.get_key()
 
         sb.download(file_id, source_id, private_key)
@@ -86,7 +96,11 @@ if __name__ == '__main__':
 
     if args.encrypt:
         filename = args.encrypt
-        receiver_id = args.dest_id
+        if args.dest_id:
+            receiver_id = args.dest_id
+        else:
+            logging.error("You must specify the ID of the receiver in dest_id")
+            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
 
         sb.local_crypto(filename, receiver_id=receiver_id)
 
@@ -98,7 +112,31 @@ if __name__ == '__main__':
 
     if args.enc_sign:
         filename = args.enc_sign
+        if args.dest_id:
+            receiver_id = args.dest_id
+        else:
+            logging.error("You must specify the ID of the receiver in dest_id")
+            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
         private_key = bundle.get_key()
-        receiver_id = args.dest_id
 
         sb.local_crypto(filename, private_key=private_key, receiver_id=receiver_id)
+
+    if args.decrypt:  # TODO: juntar en función con download
+        filename = args.decrypt
+        if args.source_id:
+            source_id = args.source_id
+        else:
+            logging.error("You must specify the ID of the sender in source_id")
+            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
+        private_key = bundle.get_key()
+
+        public_key = SecureBoxClient.api.user_get_public_key(source_id)
+
+        with open(filename, "rb") as encrypted_message:
+            signed_message = decrypt_message(encrypted_message, private_key)
+            message = verify_signature(signed_message, public_key)
+            if not os.path.exists(SecureBoxClient.received_folder):
+                os.mkdir(SecureBoxClient.received_folder)
+            logging.info(f"Signature checked, writing file to {SecureBoxClient.received_folder}/{filename}...")
+            with open(SecureBoxClient.received_folder + '/' + filename, "wb") as file:
+                file.write(message)
