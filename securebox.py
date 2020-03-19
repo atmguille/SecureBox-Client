@@ -105,7 +105,7 @@ class SecureBoxClient:
                 logging.info(f"Deleting file {file_id}...")
                 pool.submit(self.api.file_delete, file_id)
 
-    def local_crypto(self, filename: str, private_key: RsaKey = None, receiver_id: str = None):
+    def local_crypto(self, filename: str, private_key: RsaKey = None, receiver_id: str = None):  # TODO: juntar con función upload
         with open(filename, "rb") as f:
             logging.info(f"Opening file {filename}...")
             message = f.read()
