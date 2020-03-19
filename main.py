@@ -2,6 +2,9 @@ import argparse
 
 from securebox import *
 
+# TODO: que hacemos con logging?
+# TODO: este main en moodle se llama securebox_client.py, por si tienen tests automáticos habría que cambiarlo
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SecureBox client')
     parser.add_argument('--log_level', choices=['debug', 'info', 'warning', 'error', 'critical'], default='info',

@@ -24,7 +24,7 @@ class SecureBoxClient:
         public_key = key.publickey()
 
         user = self.api.user_register(username, email, public_key)
-        # The API does not return our user id, so we will have to look it by ourselves
+        # The API does not return our user id, so we will have to look it by ourselves TODO: checkear si Oscar lo ha cambiado ya. Comentar esto en la memoria
         # The strategy is to get a list of users with our email, and get the one with the ts closest to ours
         logging.info("Looking for our user ID")
         ts = user["ts"]
