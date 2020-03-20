@@ -39,9 +39,10 @@ if __name__ == '__main__':
                         help='Encrypts a file so that it can be decrypted by the user whose id is specified by --dest_id.')
     parser.add_argument('--sign', metavar='file', help='Signs the file')
     parser.add_argument('--enc_sign', metavar='file', help='Encrypts and signs a file.')
-    parser.add_argument('--decrypt', metavar='file',
+    parser.add_argument('--decrypt-and-verify', metavar='file',
                         help='Decrypts a file sent by user whose id is specified by --source_id, verifying its signature')
     parser.add_argument('--verify', metavar='file', help='Verifies a file signed by teh user specified in --source_id')
+    parser.add_argument('--decrypt', metavar='file', help='Decrypts the file whose filename is provided')
 
     args = parser.parse_args()
 
@@ -115,6 +116,12 @@ if __name__ == '__main__':
 
     if args.decrypt:
         filename = args.decrypt
+        private_key = bundle.get_key()
+
+        sb.decrypt_helper(filename=filename, private_key=private_key)
+
+    if args.decrypt_and_verify:
+        filename = args.decrypt_and_verify
         source_id = args.source_id
         private_key = bundle.get_key()
 
