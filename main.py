@@ -1,11 +1,15 @@
 import argparse
-
+import sys
 from securebox import *
 
 # TODO: que hacemos con logging?
 # TODO: este main en moodle se llama securebox_client.py, por si tienen tests automáticos habría que cambiarlo
 
 if __name__ == '__main__':
+
+    is_dest_id_required = '--upload' in sys.argv or '--encrypt' in sys.argv or 'enc_sign' in sys.argv
+    is_source_id_required = '--download' in sys.argv or '--decrypt' in sys.argv
+
     parser = argparse.ArgumentParser(description='SecureBox client')
     parser.add_argument('--log_level', choices=['debug', 'info', 'warning', 'error', 'critical'], default='info',
                         help='Indicate logging level. info by default')
@@ -26,11 +30,11 @@ if __name__ == '__main__':
                         help='Sends a file to another user, whose ID is specified in --dest_id. '
                              'By default, the file will be uploaded to SecureBox signed and encrypted with the appropiate keys '
                              'so the receiver is able to decrypt and verify it.')
-    parser.add_argument('--source_id', metavar='id', help='Sender\'s ID.')
-    parser.add_argument('--dest_id', metavar='id', help='Receiver\'s ID.')
+    parser.add_argument('--source_id', metavar='id', required=is_source_id_required, help='Sender\'s ID.')
+    parser.add_argument('--dest_id', metavar='id', required=is_dest_id_required, help='Receiver\'s ID.')
     parser.add_argument('--list_files', action='store_true', help='List all the files owned by the user.')
     parser.add_argument('--download', metavar='file_id', help='Downloads the file with the specified file_id')
-    parser.add_argument('--delete_files', metavar='file_id', help='Deletes the files with the specified file_id\'s', nargs="*")
+    parser.add_argument('--delete_files', nargs='*', metavar='file_id', help='Deletes the files with the specified file_id\'s')
     parser.add_argument('--encrypt', metavar='file',
                         help='Encrypts a file so that it can be decrypted by the user whose id is specified by --dest_id.')
     parser.add_argument('--sign', metavar='file', help='Signs the file')
@@ -70,11 +74,7 @@ if __name__ == '__main__':
 
     if args.upload:
         filename = args.upload
-        if args.dest_id:
-            destination_id = args.dest_id
-        else:
-            logging.error("You must specify the ID of the receiver in dest_id")
-            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
+        destination_id = args.dest_id
         private_key = bundle.get_key()
 
         sb.upload(filename, destination_id, private_key)
@@ -84,11 +84,7 @@ if __name__ == '__main__':
 
     if args.download:
         file_id = args.download
-        if args.source_id:
-            source_id = args.source_id
-        else:
-            logging.error("You must specify the ID of the sender in source_id")
-            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
+        source_id = args.source_id
         private_key = bundle.get_key()
 
         sb.download(file_id, source_id, private_key)
@@ -99,11 +95,7 @@ if __name__ == '__main__':
 
     if args.encrypt:
         filename = args.encrypt
-        if args.dest_id:
-            receiver_id = args.dest_id
-        else:
-            logging.error("You must specify the ID of the receiver in dest_id")
-            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
+        receiver_id = args.dest_id
 
         sb.crypto_helper(filename, receiver_id=receiver_id)
 
@@ -115,22 +107,14 @@ if __name__ == '__main__':
 
     if args.enc_sign:
         filename = args.enc_sign
-        if args.dest_id:
-            receiver_id = args.dest_id
-        else:
-            logging.error("You must specify the ID of the receiver in dest_id")
-            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
+        receiver_id = args.dest_id
         private_key = bundle.get_key()
 
         sb.crypto_helper(filename, private_key=private_key, receiver_id=receiver_id)
 
     if args.decrypt:  # TODO: juntar en función con download
         filename = args.decrypt
-        if args.source_id:
-            source_id = args.source_id
-        else:
-            logging.error("You must specify the ID of the sender in source_id")
-            exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
+        source_id = args.source_id
         private_key = bundle.get_key()
 
         public_key = SecureBoxClient.api.user_get_public_key(source_id)
