@@ -14,9 +14,21 @@ class API:
     base_url = "https://tfg.eps.uam.es:8080/api"
 
     def __init__(self, token):
+        """
+        Initializes an API object. If the token is not valid, an exception will be thrown when calling a method
+        of the API, NOT during initialization.
+        :param token: token to be used
+        """
         self.header = {"Authorization": f"Bearer {token}"}
 
     def user_register(self, username: str, email: str, public_key: RsaKey):
+        """
+        Registers a new user
+        :param username:
+        :param email:
+        :param public_key:
+        :return: a dictionary with keys userID and ts
+        """
         url = API.base_url + "/users/register"
         body = {
             "nombre": username,
@@ -33,6 +45,12 @@ class API:
         return parsed_response
 
     def user_search(self, query: str) -> list:
+        """
+        Looks for users in the server whose name or email contains the query
+        :param query:
+        :return: a list with the users. Each user is represented as a dictionary with fields userID, nombre, email,
+        publicKey and ts.
+        """
         url = API.base_url + "/users/search"
         body = {"data_search": query}
 
@@ -45,6 +63,11 @@ class API:
         return parsed_response
 
     def user_get_public_key(self, user_id: str) -> RsaKey:
+        """
+        Gets the public key of a user whose user_id is passed as a parameter
+        :param user_id:
+        :return: public RsaKey of the requested user
+        """
         url = API.base_url + "/users/getPublicKey"
         body = {"userID": user_id}
 
@@ -57,6 +80,11 @@ class API:
         return RSA.import_key(parsed_response["publicKey"])
 
     def user_delete(self, user_id: str) -> str:
+        """
+        Deletes our user
+        :param user_id: user_id of the user whose token is being used to do the query
+        :return: //TODO Not working
+        """
         url = API.base_url + "/users/delete"
         body = {"userID": user_id}
 
@@ -64,11 +92,16 @@ class API:
         parsed_response = json.loads(response.text)
 
         if response.status_code != 200:
+            print(response.text)
             raise api_exceptions[parsed_response["error_code"]]
 
-        return parsed_response["userID"]
+        return parsed_response
 
     def file_list(self) -> list:
+        """
+        Lists the files uploaded by us (they are linked to our token/ID)
+        :return: a list of files. Each file is represented as a dictionary with fields fileID and fileName
+        """
         url = API.base_url + "/files/list"
 
         response = requests.get(url, headers=self.header)
@@ -80,6 +113,12 @@ class API:
         return parsed_response["files_list"]
 
     def file_upload(self, filename: str, data: bytes = None) -> str:
+        """
+        Uploads a file to the server
+        :param filename: name of the file to be uploaded
+        :param data: If specified, it will be the content of the file. If not, the file named filename will be sent.
+        :return: //TODO
+        """
         url = API.base_url + "/files/upload"
 
         if data:
@@ -98,9 +137,14 @@ class API:
         if response.status_code != 200:
             raise api_exceptions[parsed_response["error_code"]]
 
-        return parsed_response["file_id"]
+        return parsed_response
 
     def file_download(self, file_id: str) -> Tuple[bytes, str]:
+        """
+        Downloads a file from the server
+        :param file_id: id of the file to be downloaded
+        :return: a tuple with the content of the file (in bytes) and the name of it (as an ordinary string)
+        """
         url = API.base_url + "/files/download"
         body = {"file_id": file_id}
 
@@ -118,6 +162,11 @@ class API:
         return response.content, filename
 
     def file_delete(self, file_id: str) -> str:
+        """
+        Deletes a file from the server
+        :param file_id: id of the file to be deleted
+        :return: //TODO
+        """
         url = API.base_url + "/files/delete"
         body = {"file_id": file_id}
 
@@ -127,4 +176,4 @@ class API:
         if response.status_code != 200:
             raise api_exceptions[parsed_response["error_code"]]
 
-        return parsed_response["file_id"]
+        return parsed_response
