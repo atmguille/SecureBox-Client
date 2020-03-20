@@ -105,13 +105,13 @@ if __name__ == '__main__':
             logging.error("You must specify the ID of the receiver in dest_id")
             exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
 
-        sb.local_crypto(filename, receiver_id=receiver_id)
+        sb.crypto_helper(filename, receiver_id=receiver_id)
 
     if args.sign:
         filename = args.sign
         private_key = bundle.get_key()
 
-        sb.local_crypto(filename, private_key=private_key)
+        sb.crypto_helper(filename, private_key=private_key)
 
     if args.enc_sign:
         filename = args.enc_sign
@@ -122,7 +122,7 @@ if __name__ == '__main__':
             exit(1)  # TODO: en vez de salir tan bruscamente, se lo pedimos por pantalla?
         private_key = bundle.get_key()
 
-        sb.local_crypto(filename, private_key=private_key, receiver_id=receiver_id)
+        sb.crypto_helper(filename, private_key=private_key, receiver_id=receiver_id)
 
     if args.decrypt:  # TODO: juntar en función con download
         filename = args.decrypt
