@@ -41,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--enc_sign', metavar='file', help='Encrypts and signs a file.')
     parser.add_argument('--decrypt', metavar='file',
                         help='Decrypts a file sent by user whose id is specified by --source_id, verifying its signature')
+    parser.add_argument('--verify', metavar='file', help='Verifies a file signed by teh user specified in --source_id')
 
     args = parser.parse_args()
 
@@ -97,33 +98,30 @@ if __name__ == '__main__':
         filename = args.encrypt
         receiver_id = args.dest_id
 
-        sb.crypto_helper(filename, receiver_id=receiver_id, to_disk=True)
+        sb.encrypt_helper(filename, receiver_id=receiver_id, to_disk=True)
 
     if args.sign:
         filename = args.sign
         private_key = bundle.get_key()
 
-        sb.crypto_helper(filename, private_key=private_key, to_disk=True)
+        sb.encrypt_helper(filename, private_key=private_key, to_disk=True)
 
     if args.enc_sign:
         filename = args.enc_sign
         receiver_id = args.dest_id
         private_key = bundle.get_key()
 
-        sb.crypto_helper(filename, private_key=private_key, receiver_id=receiver_id, to_disk=True)
+        sb.encrypt_helper(filename, private_key=private_key, receiver_id=receiver_id, to_disk=True)
 
-    if args.decrypt:  # TODO: juntar en función con download
+    if args.decrypt:
         filename = args.decrypt
         source_id = args.source_id
         private_key = bundle.get_key()
 
-        public_key = SecureBoxClient.api.user_get_public_key(source_id)
+        sb.decrypt_helper(filename=filename, sender_id=source_id, private_key=private_key)
 
-        with open(filename, "rb") as encrypted_message:
-            signed_message = decrypt_message(encrypted_message, private_key)
-            message = verify_signature(signed_message, public_key)
-            if not os.path.exists(SecureBoxClient.received_folder):
-                os.mkdir(SecureBoxClient.received_folder)
-            logging.info(f"Signature checked, writing file to {SecureBoxClient.received_folder}/{filename}...")
-            with open(SecureBoxClient.received_folder + '/' + filename, "wb") as file:
-                file.write(message)
+    if args.verify:
+        filename = args.verify
+        source_id = args.source_id
+
+        sb.decrypt_helper(filename=filename, sender_id=source_id)
