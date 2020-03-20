@@ -10,7 +10,8 @@ from api.exceptions import *
 
 
 class API:
-    base_url = "https://vega.ii.uam.es:8080/api"
+    # base_url = "https://vega.ii.uam.es:8080/api"
+    base_url = "https://tfg.eps.uam.es:8080/api"
 
     def __init__(self, token):
         self.header = {"Authorization": f"Bearer {token}"}
