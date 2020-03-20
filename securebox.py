@@ -117,10 +117,12 @@ class SecureBoxClient:
 
             encrypted = ".crypt" in filename
             signed = ".signed" in filename
-        else:
+        elif file_id:
             # SecureBox mode (the file is encrypted and signed)
             encrypted = True
             signed = True
+        else:
+            return
 
         if signed:
             # Fetch the public key in parallel for maximum performance
@@ -145,7 +147,7 @@ class SecureBoxClient:
 
         if not os.path.exists(SecureBoxClient.received_folder):
             os.mkdir(SecureBoxClient.received_folder)
-        logging.info(f"Writing file to {SecureBoxClient.received_folder}/{filename}...")
-        with open(SecureBoxClient.received_folder + '/' + filename, "wb") as file:
+        logging.info(f"Writing file to {SecureBoxClient.received_folder}/{output_filename}...")
+        with open(SecureBoxClient.received_folder + '/' + output_filename, "wb") as file:
             file.write(message)
 
