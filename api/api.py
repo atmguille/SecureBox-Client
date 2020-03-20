@@ -79,7 +79,7 @@ class API:
 
         return RSA.import_key(parsed_response["publicKey"])
 
-    def user_delete(self, user_id: str) -> str:
+    def user_delete(self, user_id: str) -> dict:
         """
         Deletes our user
         :param user_id: user_id of the user whose token is being used to do the query
@@ -112,7 +112,7 @@ class API:
 
         return parsed_response["files_list"]
 
-    def file_upload(self, filename: str, data: bytes = None) -> str:
+    def file_upload(self, filename: str, data: bytes = None) -> dict:
         """
         Uploads a file to the server
         :param filename: name of the file to be uploaded
@@ -161,7 +161,7 @@ class API:
 
         return response.content, filename
 
-    def file_delete(self, file_id: str) -> str:
+    def file_delete(self, file_id: str) -> dict:
         """
         Deletes a file from the server
         :param file_id: id of the file to be deleted
