@@ -5,7 +5,7 @@ from threading import Thread
 
 from api.api import API
 from bundle import Bundle
-from crypto.crypto import *
+from cryptography.cryptography import *
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,13 +22,7 @@ class SecureBoxClient:
         public_key = key.publickey()
 
         user = self.api.user_register(username, email, public_key)
-        # The API does not return our user id, so we will have to look it by ourselves TODO: checkear si Oscar lo ha cambiado ya. Comentar esto en la memoria
-        # The strategy is to get a list of users with our email, and get the one with the ts closest to ours
-        logging.info("Looking for our user ID")
-        ts = user["ts"]
-        users = self.api.user_search(email)
-        user_at_server = min(users, key=lambda u: abs(float(u["ts"]) - ts))
-        user_id = user_at_server["userID"]
+        user_id = user["userID"]
 
         logging.info(f"Saving data to configuration file")
         # Save key and user_id to config
