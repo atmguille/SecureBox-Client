@@ -54,28 +54,7 @@ class SecureBoxClient:
             logging.info(file)
 
     def download(self, file_id: str, source_id: str, private_key: RsaKey):
-        logging.info(f"Retrieving file with ID {file_id}...")
-
-        # Download the public key of the sender in parallel with the encrypted file for maximum performance
-        public_key = []
-        thread = Thread(target=lambda: public_key.append(self.api.user_get_public_key(source_id)))
-        thread.start()
-
-        encrypted_message, filename = self.api.file_download(file_id)
-        logging.info(f"Successfully downloaded {filename}, decrypting it now...")
-        signed_message = decrypt_message(encrypted_message, private_key)
-
-        logging.info(f"Successfully decrypted {filename}, checking signature...")
-        # Wait until the public key has been retrieved
-        thread.join()
-        public_key = public_key[0]
-        message = verify_signature(signed_message, public_key)
-
-        if not os.path.exists(SecureBoxClient.received_folder):
-            os.mkdir(SecureBoxClient.received_folder)
-        logging.info(f"Signature checked, writing file to {SecureBoxClient.received_folder}/{filename}...")
-        with open(SecureBoxClient.received_folder + '/' + filename, "wb") as file:
-            file.write(message)
+        self.decrypt_helper(file_id=file_id, sender_id=source_id, private_key=private_key)
 
     def delete_files(self, *files_id: str):
         if "all" in files_id:
@@ -85,7 +64,8 @@ class SecureBoxClient:
                 logging.info(f"Deleting file {file_id}...")
                 pool.submit(self.api.file_delete, file_id)
 
-    def encrypt_helper(self, filename: str, private_key: RsaKey = None, receiver_id: str = None, to_disk: bool = False) -> bytes:
+    def encrypt_helper(self, filename: str, private_key: RsaKey = None, receiver_id: str = None,
+                       to_disk: bool = False) -> bytes:
         """
         This method performs several actions to a file
         :param filename: name of the file to be read
@@ -124,3 +104,48 @@ class SecureBoxClient:
                     output_file.write(message)
 
             return message
+
+    def decrypt_helper(self, filename: str = None, file_id: str = None, sender_id: str = None, private_key: RsaKey = None) -> None:
+        # Get mode
+        if filename:
+            # Local mode (the file could be encrypted and/or signed)
+            with open(filename, "rb") as file:
+                message = file.read()
+
+            output_filename = filename.replace(".crypt", "")
+            output_filename = output_filename.replace(".signed", "")
+
+            encrypted = ".crypt" in filename
+            signed = ".signed" in filename
+        else:
+            # SecureBox mode (the file is encrypted and signed)
+            encrypted = True
+            signed = True
+
+        if signed:
+            # Fetch the public key in parallel for maximum performance
+            public_key = []
+            thread = Thread(target=lambda: public_key.append(self.api.user_get_public_key(sender_id)))
+            thread.start()
+
+        if file_id:
+            # Fetch the file from the SecureBox server
+            message, output_filename = self.api.file_download(file_id)
+            logging.info(f"File {output_filename} downloaded")
+
+        if encrypted:
+            message = decrypt_message(message, private_key)
+            logging.info(f"File {output_filename} decrypted")
+
+        if signed:
+            thread.join()
+            public_key = public_key[0]
+            message = verify_signature(message, public_key)
+            logging.info(f"File {output_filename} successfully verified")
+
+        if not os.path.exists(SecureBoxClient.received_folder):
+            os.mkdir(SecureBoxClient.received_folder)
+        logging.info(f"Writing file to {SecureBoxClient.received_folder}/{filename}...")
+        with open(SecureBoxClient.received_folder + '/' + filename, "wb") as file:
+            file.write(message)
+
