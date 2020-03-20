@@ -43,22 +43,10 @@ class SecureBoxClient:
         self.api.user_delete(user_id)
 
     def upload(self, filename: str, destination_id: str, private_key: RsaKey):
-        with open(filename, "rb") as file:
-            logging.info(f"Reading file {filename}")
-            message = file.read()
-
-            # Sign message using our private key
-            logging.info(f"Signing file {filename}")
-            signature = sign_message(message, private_key)
-
-            logging.info(f"Encrypting file {filename}")
-            # Encrypt signed message using the remote public key
-            remote_key = self.api.user_get_public_key(destination_id)
-            encrypted_message = encrypt_message(signature + message, remote_key)
-
-            logging.info(f"Sending file {filename}")
-            file_id = self.api.file_upload(filename, encrypted_message)
-            logging.info(f"Successfully sent {filename} which got ID {file_id}")
+        encrypted_message = self.local_crypto(filename, private_key=private_key, receiver_id=destination_id)
+        logging.info(f"Sending file {filename}")
+        file_id = self.api.file_upload(filename, encrypted_message)["fileID"]
+        logging.info(f"Successfully sent {filename} which got ID {file_id}")
 
     def list_files(self):
         logging.info("Listing uploaded files...")
@@ -97,7 +85,15 @@ class SecureBoxClient:
                 logging.info(f"Deleting file {file_id}...")
                 pool.submit(self.api.file_delete, file_id)
 
-    def local_crypto(self, filename: str, private_key: RsaKey = None, receiver_id: str = None):  # TODO: juntar con función upload
+    def local_crypto(self, filename: str, private_key: RsaKey = None, receiver_id: str = None, to_disk: bool = False) -> bytes:
+        """
+        This method performs several actions to a file
+        :param filename: name of the file to be read
+        :param private_key: if provided, the file will be signed digitally
+        :param receiver_id: if provided, the file will be encrypted
+        :param to_disk: if true, the resulting message (signed and/or encrypted) will be saved to a file
+        :return: the resulting message, which will be signed and/or encrypted
+        """
         with open(filename, "rb") as f:
             logging.info(f"Opening file {filename}...")
             message = f.read()
@@ -115,13 +111,16 @@ class SecureBoxClient:
                 logging.info("Encrypting file...")
                 message = encrypt_message(message, public_key)
 
-            # Save the file to disk
-            output_filename = filename
-            if private_key:
-                output_filename += ".signed"
-            if receiver_id:
-                output_filename += ".crypt"
+            # Save the file to disk if requested
+            if to_disk:
+                output_filename = filename
+                if private_key:
+                    output_filename += ".signed"
+                if receiver_id:
+                    output_filename += ".crypt"
 
-            logging.info(f"Saving file {output_filename} to disk")
-            with open(output_filename, "wb") as output_file:
-                output_file.write(message)
+                logging.info(f"Saving file {output_filename} to disk")
+                with open(output_filename, "wb") as output_file:
+                    output_file.write(message)
+
+            return message
