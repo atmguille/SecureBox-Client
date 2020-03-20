@@ -43,7 +43,7 @@ class SecureBoxClient:
         self.api.user_delete(user_id)
 
     def upload(self, filename: str, destination_id: str, private_key: RsaKey):
-        encrypted_message = self.crypto_helper(filename, private_key=private_key, receiver_id=destination_id)
+        encrypted_message = self.encrypt_helper(filename, private_key=private_key, receiver_id=destination_id)
         logging.info(f"Sending file {filename}")
         file_id = self.api.file_upload(filename, encrypted_message)["fileID"]
         logging.info(f"Successfully sent {filename} which got ID {file_id}")
@@ -85,7 +85,7 @@ class SecureBoxClient:
                 logging.info(f"Deleting file {file_id}...")
                 pool.submit(self.api.file_delete, file_id)
 
-    def crypto_helper(self, filename: str, private_key: RsaKey = None, receiver_id: str = None, to_disk: bool = False) -> bytes:
+    def encrypt_helper(self, filename: str, private_key: RsaKey = None, receiver_id: str = None, to_disk: bool = False) -> bytes:
         """
         This method performs several actions to a file
         :param filename: name of the file to be read

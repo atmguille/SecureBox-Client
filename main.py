@@ -97,20 +97,20 @@ if __name__ == '__main__':
         filename = args.encrypt
         receiver_id = args.dest_id
 
-        sb.crypto_helper(filename, receiver_id=receiver_id)
+        sb.encrypt_helper(filename, receiver_id=receiver_id)
 
     if args.sign:
         filename = args.sign
         private_key = bundle.get_key()
 
-        sb.crypto_helper(filename, private_key=private_key)
+        sb.encrypt_helper(filename, private_key=private_key)
 
     if args.enc_sign:
         filename = args.enc_sign
         receiver_id = args.dest_id
         private_key = bundle.get_key()
 
-        sb.crypto_helper(filename, private_key=private_key, receiver_id=receiver_id)
+        sb.encrypt_helper(filename, private_key=private_key, receiver_id=receiver_id)
 
     if args.decrypt:  # TODO: juntar en función con download
         filename = args.decrypt
