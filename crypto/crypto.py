@@ -35,6 +35,7 @@ def verify_signature(message: bytes, sender_public_key: RsaKey) -> bytes:
     :param message: message to be verified
     :param sender_public_key: public key of the pretended sender
     :return: original message without signature if it is valid
+    :raise: SignatureNotAuthentic if signature is not valid
     """
     signature = message[:sender_public_key.size_in_bytes()]  # Assume encryption has been done with same key size
     original_message = message[sender_public_key.size_in_bytes():]
@@ -43,7 +44,7 @@ def verify_signature(message: bytes, sender_public_key: RsaKey) -> bytes:
     try:
         verifier.verify(h, signature)
         return original_message
-    except (ValueError, TypeError):
+    except ValueError:
         raise SignatureNotAuthentic
 
 
