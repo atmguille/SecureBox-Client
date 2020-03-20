@@ -45,7 +45,7 @@ class SecureBoxClient:
     def upload(self, filename: str, destination_id: str, private_key: RsaKey):
         encrypted_message = self.encrypt_helper(filename, private_key=private_key, receiver_id=destination_id)
         logging.info(f"Sending file {filename}")
-        file_id = self.api.file_upload(filename, encrypted_message)["fileID"]
+        file_id = self.api.file_upload(filename, encrypted_message)["file_id"]
         logging.info(f"Successfully sent {filename} which got ID {file_id}")
 
     def list_files(self):
