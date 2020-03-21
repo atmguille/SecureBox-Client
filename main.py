@@ -8,7 +8,7 @@ from securebox import *
 if __name__ == '__main__':
 
     is_dest_id_required = '--upload' in sys.argv or '--encrypt' in sys.argv or 'enc_sign' in sys.argv
-    is_source_id_required = '--download' in sys.argv or '--decrypt' in sys.argv
+    is_source_id_required = '--download' in sys.argv or '--decrypt-and-verify' in sys.argv or '--verify' in sys.argv
 
     parser = argparse.ArgumentParser(description='SecureBox client')
     parser.add_argument('--log_level', choices=['debug', 'info', 'warning', 'error', 'critical'], default='info',
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--enc_sign', metavar='file', help='Encrypts and signs a file.')
     parser.add_argument('--decrypt-and-verify', metavar='file',
                         help='Decrypts a file sent by user whose id is specified by --source_id, verifying its signature')
-    parser.add_argument('--verify', metavar='file', help='Verifies a file signed by teh user specified in --source_id')
+    parser.add_argument('--verify', metavar='file', help='Verifies a file signed by the user specified in --source_id')
     parser.add_argument('--decrypt', metavar='file', help='Decrypts the file whose filename is provided')
 
     args = parser.parse_args()
