@@ -40,13 +40,6 @@ class UserNotFoundException(Exception):
         super().__init__(message)
 
 
-# TODO: WTF
-class WTFException(Exception):
-    def __init__(self):
-        message = "No clue about what this error is (something about the function search?"
-        super().__init__(message)
-
-
 class IncorrectArgsException(Exception):
     def __init__(self):
         message = "The HTTP arguments are not correct"
@@ -61,6 +54,5 @@ api_exceptions = {
     "FILE2": IncorrectFileIDException,
     "FILE3": TooManyFilesException,
     "USER_ID1": UserNotFoundException,
-    "USER_ID2": WTFException,
     "ARGS1": IncorrectArgsException
 }
