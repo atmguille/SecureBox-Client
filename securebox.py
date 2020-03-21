@@ -34,27 +34,34 @@ class SecureBoxClient:
     def search_id(self, query: str):
         logging.info(f"Searching query {query}")
         users = self.api.user_search(query)
-
-        for user in users:
-            logging.info(user)
+        if users:
+            for user in users:
+                logging.info(f"User ID: {user['userID']}. Name: {user['nombre']}. Email: {user['email']}. TS: {user['ts']}\n"
+                             f"Public Key: {user['publicKey']}")
+        else:
+            logging.info("No users found with the specified query")
 
     def delete_id(self, user_id: str):
         logging.info(f"Deleting {user_id}...")
         self.api.user_delete(user_id)
 
-    def upload(self, filename: str, destination_id: str, private_key: RsaKey):
-        encrypted_message = self.encrypt_helper(filename, private_key=private_key, receiver_id=destination_id)
+    def upload(self, filename: str, receiver_id: str, private_key: RsaKey):
+        encrypted_message = self.encrypt_helper(filename, private_key=private_key, receiver_id=receiver_id)
         logging.info(f"Sending file {filename}")
         file_id = self.api.file_upload(filename, encrypted_message)["file_id"]
         logging.info(f"Successfully sent {filename} which got ID {file_id}")
 
     def list_files(self):
         logging.info("Listing uploaded files...")
-        for file in self.api.file_list():
-            logging.info(file)
+        files = self.api.file_list()
+        if files:
+            for file in files:
+                logging.info(f"File ID: {file['fileID']}. File name: {file['fileName']}")
+        else:
+            logging.info("No files found")
 
-    def download(self, file_id: str, source_id: str, private_key: RsaKey):
-        self.decrypt_helper(file_id=file_id, sender_id=source_id, private_key=private_key)
+    def download(self, file_id: str, sender_id: str, private_key: RsaKey):
+        self.decrypt_helper(file_id=file_id, sender_id=sender_id, private_key=private_key)
 
     def delete_files(self, *files_id: str):
         if "all" in files_id:
@@ -106,6 +113,12 @@ class SecureBoxClient:
             return message
 
     def decrypt_helper(self, filename: str = None, file_id: str = None, sender_id: str = None, private_key: RsaKey = None) -> None:
+        # Avoid "referenced before assignment" warnings
+        message = bytes()
+        output_filename = ""
+        public_key = []
+        thread = None
+
         # Get mode
         if filename:
             # Local mode (the file could be encrypted and/or signed)
@@ -122,11 +135,11 @@ class SecureBoxClient:
             encrypted = True
             signed = True
         else:
+            logging.warning("Not enough arguments when decrypting")
             return
 
         if signed:
             # Fetch the public key in parallel for maximum performance
-            public_key = []
             thread = Thread(target=lambda: public_key.append(self.api.user_get_public_key(sender_id)))
             thread.start()
 
