@@ -7,7 +7,7 @@ from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad, unpad
 from cryptography.exceptions import *
 
-IV_LEN = 16
+IV_LEN = 16  # IV is always 16 bytes long when using AES
 
 
 def rsa_generate_key(nbits: int = 2048) -> RsaKey:
@@ -19,14 +19,14 @@ def rsa_generate_key(nbits: int = 2048) -> RsaKey:
     return RSA.generate(nbits)
 
 
-def sign_message(message: bytes, key: RsaKey) -> bytes:
+def sign_message(message: bytes, sender_private_key: RsaKey) -> bytes:
     """
     Signs a message with the specified key
     :param message: message to by signed
-    :param key: key to use in signing
+    :param sender_private_key: key to use in signing
     :return: signed message
     """
-    return pkcs1_15.new(key).sign(SHA256.new(message))
+    return pkcs1_15.new(sender_private_key).sign(SHA256.new(message))
 
 
 def verify_signature(message: bytes, sender_public_key: RsaKey) -> bytes:
@@ -73,18 +73,18 @@ def _encrypt_aes_key(aes_key: bytes, receiver_public_key: RsaKey) -> bytes:
     return cipher_rsa.encrypt(aes_key)
 
 
-def decrypt_message(message: bytes, key: RsaKey) -> bytes:
+def decrypt_message(message: bytes, receiver_private_key: RsaKey) -> bytes:
     """
     Decrypts message, using the specified key to decrypt symmetric key firs
     :param message: message with the following structure: IV + encrypted symmetric key + encrypted message
-    :param key: RsaKey to decrypt symmetric key
+    :param receiver_private_key: RsaKey to decrypt symmetric key
     :return: decrypted message
     """
     iv = message[:IV_LEN]
-    enc_aes_key = message[IV_LEN:IV_LEN + key.size_in_bytes()]  # Assume encryption has been done with same key size
-    enc_message = message[IV_LEN + key.size_in_bytes():]
+    enc_aes_key = message[IV_LEN:IV_LEN + receiver_private_key.size_in_bytes()]  # Assume encryption has been done with same key size
+    enc_message = message[IV_LEN + receiver_private_key.size_in_bytes():]
 
-    cipher_rsa = PKCS1_OAEP.new(key)
+    cipher_rsa = PKCS1_OAEP.new(receiver_private_key)
     aes_key = cipher_rsa.decrypt(enc_aes_key)
 
     cipher_aes = AES.new(aes_key, AES.MODE_CBC, iv)

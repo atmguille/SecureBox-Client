@@ -76,20 +76,20 @@ if __name__ == '__main__':
 
     if args.upload:
         filename = args.upload
-        destination_id = args.dest_id
+        receiver_id = args.dest_id
         private_key = bundle.get_key()
 
-        sb.upload(filename, destination_id, private_key)
+        sb.upload(filename, receiver_id, private_key)
 
     if args.list_files:
         sb.list_files()
 
     if args.download:
         file_id = args.download
-        source_id = args.source_id
+        sender_id = args.source_id
         private_key = bundle.get_key()
 
-        sb.download(file_id, source_id, private_key)
+        sb.download(file_id, sender_id, private_key)
 
     if args.delete_files:
         files_id = args.delete_files
@@ -122,13 +122,13 @@ if __name__ == '__main__':
 
     if args.decrypt_and_verify:
         filename = args.decrypt_and_verify
-        source_id = args.source_id
+        sender_id = args.source_id
         private_key = bundle.get_key()
 
-        sb.decrypt_helper(filename=filename, sender_id=source_id, private_key=private_key)
+        sb.decrypt_helper(filename=filename, sender_id=sender_id, private_key=private_key)
 
     if args.verify:
         filename = args.verify
-        source_id = args.source_id
+        sender_id = args.source_id
 
-        sb.decrypt_helper(filename=filename, sender_id=source_id)
+        sb.decrypt_helper(filename=filename, sender_id=sender_id)
