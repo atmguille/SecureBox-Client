@@ -10,6 +10,10 @@ Using a virtual environment is highly recommended. To do so:
   ```bash
   virtualenv venv
   ```
+  To specify Python3 as the interpreter (required for this project), create the environment running:
+  ```bash
+  virtualenv --python=python3 venv
+  ```
 - Activate your virtual environment:
   ```bash
   source venv/bin/activate
@@ -24,3 +28,14 @@ All the required libraries are indicated in `requirements.txt`. It is recommende
 ```bash
 pip install -r requirements.txt
 ```
+
+## Execution
+To run the program, you will need to use Python3 as the interpreter. If you have already set it in the virtual environment, just run:
+```bash
+python main.py
+```
+If not, you must run it as follows:
+```bash
+python3 main.py
+```
+To display the program usage, run it with `-h` or `--help`.
