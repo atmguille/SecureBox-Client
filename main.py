@@ -17,9 +17,8 @@ if __name__ == '__main__':
     parser.add_argument('--search_id', metavar='string',
                         help='Looks for a user in SecureBox whose name or email contains the string specified, '
                              'returning its ID.')
-    parser.add_argument('--delete_id', metavar='id',
-                        help='Deletes the identity with the id specified. Please note that the user that creates '
-                             'an identity is the only one allowed to delete it.')
+    parser.add_argument('--delete_id',  action='store_true',
+                        help='Deletes the identity with the id of the current user, reading it from the bundle.')
     parser.add_argument('--upload', metavar='file',
                         help='Sends a file to another user, whose ID is specified in --dest_id. '
                              'By default, the file will be uploaded to SecureBox signed and encrypted with the appropiate keys '
@@ -28,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--dest_id', metavar='id', required=is_dest_id_required, help='Receiver\'s ID.')
     parser.add_argument('--list_files', action='store_true', help='List all the files owned by the user.')
     parser.add_argument('--download', metavar='file_id', help='Downloads the file with the specified file_id')
-    parser.add_argument('--delete_files', nargs='*', metavar='file_id', help='Deletes the files with the specified file_id\'s')
+    parser.add_argument('--delete_files', nargs='*', metavar='file_id', help='Deletes the files with the specified file_id(s)')
     parser.add_argument('--encrypt', metavar='file',
                         help='Encrypts a file so that it can be decrypted by the user whose id is specified by --dest_id.')
     parser.add_argument('--sign', metavar='file', help='Signs the file')
