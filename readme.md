@@ -30,7 +30,7 @@ pip install -r requirements.txt
 ```
 
 ## Execution
-To run the program, you will need to use Python3 as the interpreter. If you have already set it in the virtual environment, just run:
+To run the program, you will need to use Python3 as the interpreter (at least version 3.6). If you have already set it in the virtual environment, just run:
 ```bash
 python main.py
 ```
