@@ -29,6 +29,9 @@ All the required libraries are indicated in `requirements.txt`. It is recommende
 pip install -r requirements.txt
 ```
 
+## Configuration
+To interact with the server, you will need a token. Once you have the token, the script will ask you to write it through stdin and will then initialize the `bundle.ini`. If you want to use another token, just remove this file and the script will ask it again. TODO: comentar algo de create_id o...?
+
 ## Execution
 To run the program, you will need to use Python3 as the interpreter (at least version 3.6). If you have already set it in the virtual environment, just run:
 ```bash
