@@ -32,6 +32,18 @@ pip install -r requirements.txt
 ## Configuration
 To interact with the server, you will need a token. Once you have the token, the script will ask you to write it through stdin and will then initialize the `bundle.ini`. If you want to use another token, just remove this file and the script will ask it again. TODO: comentar algo de create_id o...?
 
+Our configuration is the following: ID = 383112, TOKEN = E83A7d29D0aCFcB6. The file `bundle.ini` contains this configuration, along with the private key.
+
+To upload the requested file (prueba2.txt), we have run the following command:
+```bash
+python3 main.py --upload prueba2.txt --dest_id e281430
+```
+That returns the file Id, which is Fd3CAD02 TODO: actualizar si cambiamos cualquier cosa
+To download it, you must run:
+```bash
+python3 main.py --download Fd3CAD02 --source_id 383112
+```
+
 ## Execution
 To run the program, you will need to use Python3 as the interpreter (at least version 3.6). If you have already set it in the virtual environment, just run:
 ```bash
