@@ -38,10 +38,10 @@ To upload the requested file (prueba2.txt), we have run the following command:
 ```bash
 python3 main.py --upload prueba2.txt --dest_id e281430
 ```
-That returns the file Id, which is Fd3CAD02 TODO: actualizar si cambiamos cualquier cosa
+That returns the file Id, which is dA4Fc1f6 TODO: actualizar si cambiamos cualquier cosa
 To download it, you must run:
 ```bash
-python3 main.py --download Fd3CAD02 --source_id 383112
+python3 main.py --download dA4Fc1f6 --source_id 383112
 ```
 
 ## Execution
