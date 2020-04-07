@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # Try to read the ini file to retrieve the token
     bundle = Bundle()
     if bundle.initialization_needed():
-        logging.warning(f"File {Bundle.filename} not found... Creating ID...")
+        print(f"File {Bundle.filename} not found... Creating ID...")
 
         token = input("Insert token: ")
         bundle.set_token(token)
