@@ -11,13 +11,16 @@ Cabe mencionar que el código del proyecto se encuentra dividido en 4 ficheros:
 - **api.py:** en este fichero se encuentra toda la funcionalidad para comunicarse con el servidor.
 - **cryptography.py:** aquí se encuentra todo lo relacionado con la firma, cifrado y descifrado de mensajes.
 - **securebox.py:** en este archivo están implementadas todas las funciones del cliente. Por ejemplo, aunque para firmar y cifrar un mensaje se use `cryptography.py`, es aquí donde está gestionado el abrir el fichero a cifrar, el manejo de excepciones, el guardado del fichero final o su envío al servidor de SecureBox, etc. En definitiva, este fichero de Python es el pegamento de los dos anteriores. Todos los mensajes mostrados al usuario (salvo los relacionados con los argumentos) se encuentran aquí.
-- **main.py:** es el punto de entrada a la aplicación y es donde se gestionan los argumentos recibidos
+- **main.py:** es el punto de entrada a la aplicación y es donde se gestionan los argumentos recibidos.
+
+Además, como **api.py** y **cryptography.py** tienen excepciones propias, hemos decidido separarlas unas de otras y crear directorios específicos que agrupen el código y las excepciones.
 
 ## Decisiones de diseño
 Se han realizado dos ligeras modificaciones con respecto a las especificaciones de Moodle:
 - **delete_id**: en Moodle se especifica lo siguiente: "Borra la identidad con ID id registrada en el sistema. Obviamente, sólo se pueden borrar aquellas identidades creadas por el usuario que realiza la llamada." Realmente no acabamos de entender por qué es necesario pasarle un ID cuando sólo hay un ID por token. No obstante, para intentar tapar el fallo de diseño del servidor de cara al usuario final, decidimos guardar el ID en un fichero `bundle.ini`, junto al token y a la clave privada. Gracias a esto, no es necesario pasar un id a `--delete_id`.
 - **delete_files**: inicialmente esta opción se llamaba `--delete_file`, pero la hemos mejorado para que pueda borrar un número indeterminado de ficheros. Es por esto que se llama `--delete_files`, en plural. Además, el borrado de ficheros se realiza de manera simultánea, haciendo uso de un *ThreadPoolExecutor*.
 
+Además, el punto de entrada a la aplicación pasa a llamarse **main.py** para evitar confusiones con **securebox.py**, que contiene toda la funcionalidad del cliente.
 ## API
 
 Como todas las llamadas a la API del servidor necesitan incluir en su cabecera el token, y este token puede ser introducido de diversas formas (por ejemplo, por *stdin* o leyéndolo de un fichero) se nos ocurrieron varias formas de implementar esto. Una manera sería tener una variable global; otra, que cada función recibiera el token como argumento. Finalmente nos decantamos por hacer uso de la programación orientada a objetos, creando una clase API, cuyo constructor recibiera el token.
@@ -35,4 +38,7 @@ En cuanto al apartado relacionado con criptografía, usamos la librería `PyCryp
 ## SecureBox
 
 ## Main
+Como se ha comentado antes, es el punto de entrada a la aplicación y el que el cliente debe ejecutar para tener acceso a toda la funcionalidad. Desde aquí se realiza toda la gestión de argumentos apoyándonos en la librería `argparse`, para después llamar a los distintos métodos de **securebox.py**. En relación al control de argumentos, pueden llamar la atención las dos primeras líneas de la función `main`. Estas sirven para detectar de una forma más limpia y a través del argumento *required* de `argparse` cuándo determinados argumentos son necesarios, evitando tener que hacer comprobaciones externas. Por otro lado, para evitar hacer un try except sobre una zona de código demasiado amplia, se crea la función `main`.
 
+## Conclusión
+Es cierto que esta práctica ha supuesto un coste menor de desarrollo con respecto a la anterior, dado que ha sido necesaria una estructura más sencilla, al uso de librerías externas y de un lenguaje de programación de más alto nivel como `Python`. Sin embargo, ha permitido observar desde más cerca el proceso de cifrado, familiarizarse con el uso de una *API* y las distintas formas de llamar a sus métodos. También, nos hemos dado cuenta de lo necesario que es llegar a un consenso a la hora de desarrollar, ya que de no haber sido así, no seríamos compatibles entre nosotros y el servicio no serviría para nada, como pasó en un inicio. TODO: todo tuyo para zanjarlo
