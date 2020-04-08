@@ -54,3 +54,5 @@ If not, you must run it as follows:
 python3 main.py
 ```
 To display the program usage, run it with `-h` or `--help`.
+
+Downloaded files will be stored in `received` directory.
