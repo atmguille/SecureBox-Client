@@ -1,10 +1,9 @@
 from Crypto.PublicKey import RSA
-from Crypto.Hash import SHA256, SHA
+from Crypto.Hash import SHA256
 from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Signature import pkcs1_15
-from Crypto.Cipher import AES, PKCS1_v1_5
+from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Random import get_random_bytes
-from Crypto import Random  # TODO: cuando se aclare lo del sentinel, homogenizar esto
 from Crypto.Util.Padding import pad, unpad
 from cryptography.exceptions import *
 
@@ -70,7 +69,7 @@ def _encrypt_aes_key(aes_key: bytes, receiver_public_key: RsaKey) -> bytes:
     :param receiver_public_key: RsaKey to encrypt the symmetric key
     :return: encrypted symmetric key
     """
-    cipher_rsa = PKCS1_v1_5.new(receiver_public_key)
+    cipher_rsa = PKCS1_OAEP.new(receiver_public_key)
     return cipher_rsa.encrypt(aes_key)
 
 
@@ -85,11 +84,8 @@ def decrypt_message(message: bytes, receiver_private_key: RsaKey) -> bytes:
     enc_aes_key = message[IV_LEN:IV_LEN + receiver_private_key.size_in_bytes()]  # Assume encryption has been done with same key size
     enc_message = message[IV_LEN + receiver_private_key.size_in_bytes():]
 
-    dsize = SHA.digest_size
-    sentinel = Random.new().read(15 + dsize)  # TODO: correct sentinel!!!???
-
-    cipher_rsa = PKCS1_v1_5.new(receiver_private_key)
-    aes_key = cipher_rsa.decrypt(enc_aes_key, sentinel)
+    cipher_rsa = PKCS1_OAEP.new(receiver_private_key)
+    aes_key = cipher_rsa.decrypt(enc_aes_key)
 
     cipher_aes = AES.new(aes_key, AES.MODE_CBC, iv)
     return unpad(cipher_aes.decrypt(enc_message), AES.block_size)  # Padding have to be removed
