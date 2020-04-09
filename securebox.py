@@ -3,7 +3,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Thread
 
 from api.api import API
-from bundle import Bundle
+from bundle.bundle import Bundle
 from cryptography.cryptography import *
 
 
