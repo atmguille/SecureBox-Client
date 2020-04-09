@@ -25,7 +25,7 @@ class SecureBoxClient:
         # Save key and user_id to config
         bundle.set_key(key)
         bundle.set_user_id(user_id)
-        # Save data to disk TODO: más tarde?
+        # Save data to disk
         bundle.write()
 
     def search_id(self, query: str):
