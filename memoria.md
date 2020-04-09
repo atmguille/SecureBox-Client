@@ -38,6 +38,39 @@ En cuanto al apartado relacionado con criptografía, usamos la librería `PyCryp
 
 ## SecureBox
 
+Una vez más empleamos programación orientada objetos. La clase `SecureBoxClient` recibe un *token* que sirve para crear un atributo `API` para permitir la comunicación con el servidor. En este fichero están implementadas todas las funcionalidades requeridas. Cabe mencionar `delete_files`.
+
+```python
+def delete_files(self, *files_id: str):
+    if "all" in files_id:
+        files_id = [file["fileID"] for file in self.api.file_list()]
+        with ThreadPoolExecutor(max_workers=len(files_id)) as pool:
+            for file_id in files_id:
+                print(f"Deleting file {file_id}...")
+                pool.submit(self.api.file_delete, file_id)
+```
+
+Como hemos comentado antes, se puede borrar un número indeterminado de ficheros, lo cual se hará de manera paralela usando un *ThreadPoolExecutor*. Además, se puede usar `delete_files("all")` para borrar todos los ficheros subidos por el usuario. Hemos implementado además dos funciones sumamente útiles: `encrypt_helper` y `decrypt_helper`.
+
+### encrypt_helper
+
+```python
+def encrypt_helper(self, filename: str, private_key: RsaKey = None, receiver_id: str = None,
+                       to_disk: bool = False) -> bytes:
+```
+
+Esta función la creamos para unificar la funcionalidad de cifrar y/o firmar en local con la de enviar archivos a SecureBox. Siempre recibe el nombre del fichero a firmar y/o cifrar. Si recibe un clave privada RSA el fichero se firmará. Si recibe un ID, se cifrará el fichero (firmado, en el caso de que se haya proporcionado una clave privada RSA) con la clave pública del usuario. Por último, hay un argumento `to_disk`, en caso de estar a *True* se guardará el fichero firmado y/o cifrado en disco (con extensiones `.signed` y `.crypt`, respectivamente).
+
+### decrypt_helper
+
+```python
+def decrypt_helper(self, filename: str = None, file_id: str = None, sender_id: str = None, 
+                       private_key: RsaKey = None) -> None:
+
+```
+
+De igual manera creamos esta función para unificar la funcionalidad de descifrar y/o verificar la firma en local con la de descargar archivos de SecureBox. Recibe o la ruta de un fichero o el ID de un fichero almacenado en el servidor de SecureBox. Si recibe un ID de emisor tratará de verificar la firma usando la clave pública del usuario que envió el fichero. Si recibe una clave privada se descifrará el fichero haciendo uso de dicha clave. Además, para mayor velocidad si se ha de descargar un fichero de SecureBox y verificar la firma, se realizará de manera paralela la descarga de la clave pública del emisor.
+
 ## Main
 Como se ha comentado antes, es el punto de entrada a la aplicación y el que el cliente debe ejecutar para tener acceso a toda la funcionalidad. Desde aquí se realiza toda la gestión de argumentos apoyándonos en la librería `argparse`, para después llamar a los distintos métodos de **securebox.py**. En relación al control de argumentos, pueden llamar la atención las dos primeras líneas de la función `main`. Estas sirven para detectar de una forma más limpia y a través del argumento *required* de `argparse` cuándo determinados argumentos son necesarios, evitando tener que hacer comprobaciones externas. Por otro lado, para evitar hacer un try except sobre una zona de código demasiado amplia, se crea la función `main`.
 
