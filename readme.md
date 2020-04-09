@@ -34,13 +34,13 @@ To interact with the server, you will need a token. The first time the client is
 
 To upload the requested file (prueba2.txt), we have run the following command:
 ```bash
-python3 main.py --upload prueba2.txt --dest_id e281430
+python main.py --upload prueba2.txt --dest_id e281430
 ```
-That returns the file Id, which is dA4Fc1f6 TODO: actualizar si cambiamos cualquier cosa
+That returns the file Id, which is 0eA92C1E.
 To download it, you must run:
 
 ```bash
-python3 main.py --download dA4Fc1f6 --source_id 383112
+python main.py --download 0eA92C1E --source_id 383112
 ```
 
 ## Execution
