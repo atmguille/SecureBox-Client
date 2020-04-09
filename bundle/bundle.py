@@ -15,7 +15,7 @@ from bundle.exceptions import IncorrectPassword
 
 class Bundle:
     plain_filename = "bundle.ini"
-    cyphered_filename = "bundle.enc"
+    cyphered_filename = "bundle.crypt"
 
     def __init__(self):
         self.config = configparser.ConfigParser()
