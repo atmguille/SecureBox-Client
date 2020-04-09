@@ -1,7 +1,7 @@
 # SecureBox Client 
 
 ## Introducción
-Esta práctica ha consistido en el desarrollo de un cliente del servidor SecureBox en Python. TODO: esta frase no me acaba de salir bien: Este cliente ofrece al usuario una manera opaca de llevar a cabo las distintas tareas y se comunica internamente con SecureBox a través de diversos *endpoints* de la API facilitada.
+Esta práctica ha consistido en el desarrollo de un cliente del servidor SecureBox en Python. Éste implementa las distintas funcionalidades requeridas, comunicándose con el servidor a través de los diversos endpoints de la API
 
 ## Organización del proyecto
 Si bien esta práctica no ha requerido el mismo nivel de organización que la anterior, hemos intentado de nuevo tener una estructura simple y bien definida. Además, para evitar la instalación de paquetes relacionados con el proyecto en la máquina y que pudiera haber interferencias entre versiones, decidimos usar un *virtual environment*. Su configuración se ha detallado en el readme. Por otro lado, para facilitar el uso y la lectura del código, se han añadido los tipos esperados, tanto en argumentos como en el retorno de las funciones, en la medida de lo posible. Esto es lo que se conoce como *type hinting*, una característica introducida en Python 3.5.
