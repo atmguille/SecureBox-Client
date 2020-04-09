@@ -83,7 +83,7 @@ class API:
         """
         Deletes our user
         :param user_id: user_id of the user whose token is being used to do the query
-        :return: //TODO Not working
+        :return: a dictionary with a field called userID
         """
         url = API.base_url + "/users/delete"
         body = {"userID": user_id}
@@ -117,7 +117,7 @@ class API:
         Uploads a file to the server
         :param filename: name of the file to be uploaded
         :param data: If specified, it will be the content of the file. If not, the file named filename will be sent.
-        :return: //TODO
+        :return: a dictionary with fields file_id and file_size
         """
         url = API.base_url + "/files/upload"
 
@@ -165,7 +165,7 @@ class API:
         """
         Deletes a file from the server
         :param file_id: id of the file to be deleted
-        :return: //TODO
+        :return: a dictionary with a field called file_id
         """
         url = API.base_url + "/files/delete"
         body = {"file_id": file_id}
