@@ -10,6 +10,8 @@ from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import unpad, pad
 
+from bundle.exceptions import IncorrectPassword
+
 
 class Bundle:
     plain_filename = "bundle.ini"
@@ -27,11 +29,18 @@ class Bundle:
             self.password = getpass("Enter bundle password: ")
             key = PBKDF2(self.password, salt, dkLen=32)
 
-            decipher = AES.new(key, AES.MODE_CBC, iv=iv)
-            deciphered_data = unpad(decipher.decrypt(ciphered_data), AES.block_size)
-            dictionary = json.loads(deciphered_data.decode())
+            try:
+                decipher = AES.new(key, AES.MODE_CBC, iv=iv)
+                deciphered_data = unpad(decipher.decrypt(ciphered_data), AES.block_size)
+                dictionary = json.loads(deciphered_data.decode())
 
-            self.config.read_dict(dictionary)
+                self.config.read_dict(dictionary)
+            except Exception:
+                # If the password is not correct, decrypt will produce random garbage, and it is highly unlikely
+                # that that garbage could have the correct padding and a JSON format that could be understood
+                # by the configparser
+                raise IncorrectPassword()
+
         elif Path(Bundle.plain_filename).exists():
             self.password = ""
             self.config.read(Bundle.plain_filename)

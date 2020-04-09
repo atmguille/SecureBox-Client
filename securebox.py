@@ -3,7 +3,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Thread
 
 from api.api import API
-from bundle import Bundle
+from bundle.bundle import Bundle
 from cryptography.cryptography import *
 
 
@@ -25,7 +25,7 @@ class SecureBoxClient:
         # Save key and user_id to config
         bundle.set_key(key)
         bundle.set_user_id(user_id)
-        # Save data to disk TODO: más tarde?
+        # Save data to disk
         bundle.write()
 
     def search_id(self, query: str):
@@ -109,7 +109,8 @@ class SecureBoxClient:
 
             return message
 
-    def decrypt_helper(self, filename: str = None, file_id: str = None, sender_id: str = None, private_key: RsaKey = None) -> None:
+    def decrypt_helper(self, filename: str = None, file_id: str = None, sender_id: str = None,
+                       private_key: RsaKey = None) -> None:
         # Avoid "referenced before assignment" warnings
         message = bytes()
         output_filename = ""
