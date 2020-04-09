@@ -6,11 +6,12 @@ Esta práctica ha consistido en el desarrollo de un cliente del servidor SecureB
 ## Organización del proyecto
 Si bien esta práctica no ha requerido el mismo nivel de organización que la anterior, hemos intentado de nuevo tener una estructura simple y bien definida. Además, para evitar la instalación de paquetes relacionados con el proyecto en la máquina y que pudiera haber interferencias entre versiones, decidimos usar un *virtual environment*. Su configuración se ha detallado en el readme. Por otro lado, para facilitar el uso y la lectura del código, se han añadido los tipos esperados, tanto en argumentos como en el retorno de las funciones, en la medida de lo posible. Esto es lo que se conoce como *type hinting*, una característica introducida en Python 3.5.
 
-Cabe mencionar que el código del proyecto se encuentra dividido en 4 ficheros:
+Cabe mencionar que el código del proyecto se encuentra dividido en 5 ficheros:
 
 - **api.py:** en este fichero se encuentra toda la funcionalidad para comunicarse con el servidor.
 - **cryptography.py:** aquí se encuentra todo lo relacionado con la firma, cifrado y descifrado de mensajes.
-- **securebox.py:** en este archivo están implementadas todas las funciones del cliente. Por ejemplo, aunque para firmar y cifrar un mensaje se use `cryptography.py`, es aquí donde está gestionado el abrir el fichero a cifrar, el manejo de excepciones, el guardado del fichero final o su envío al servidor de SecureBox, etc. En definitiva, este fichero de Python es el pegamento de los dos anteriores. Todos los mensajes mostrados al usuario (salvo los relacionados con los argumentos) se encuentran aquí.
+- **securebox.py:** en este archivo están implementadas todas las funciones del cliente. Por ejemplo, aunque para firmar y cifrar un mensaje se use `cryptography.py`, es aquí donde está gestionado el abrir el fichero a cifrar, el manejo de excepciones, el guardado del fichero final o su envío al servidor de SecureBox, etc. En definitiva, este fichero de Python es el pegamento de los dos anteriores. Todos los mensajes mostrados al usuario (salvo los relacionados con los argumentos o que con el *bundle*) se encuentran aquí.
+- **bundle.py:** gestiona el archivo de configuración, el cual contiene el token, el ID y la clave privada del usuario.
 - **main.py:** es el punto de entrada a la aplicación y es donde se gestionan los argumentos recibidos.
 
 Además, como **api.py** y **cryptography.py** tienen excepciones propias, hemos decidido separarlas unas de otras y crear directorios específicos que agrupen el código y las excepciones.
