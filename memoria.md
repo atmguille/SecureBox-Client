@@ -14,7 +14,7 @@ Cabe mencionar que el código del proyecto se encuentra dividido en 5 ficheros:
 - **bundle.py:** gestiona el archivo de configuración, el cual contiene el token, el ID y la clave privada del usuario.
 - **main.py:** es el punto de entrada a la aplicación y es donde se gestionan los argumentos recibidos.
 
-Además, como **api.py** y **cryptography.py** tienen excepciones propias, hemos decidido separarlas unas de otras y crear directorios específicos que agrupen el código y las excepciones.
+Además, como **api.py**, **cryptography.py** y **bundle.py** tienen excepciones propias, hemos decidido separarlas unas de otras y crear directorios específicos que agrupen el código y las excepciones.
 
 ## Decisiones de diseño
 Se han realizado dos ligeras modificaciones con respecto a las especificaciones de Moodle:
