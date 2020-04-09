@@ -3,9 +3,6 @@ import sys
 from securebox import *
 
 
-# TODO: que hacemos con logging?
-# TODO: este main en moodle se llama securebox_client.py, por si tienen tests automáticos habría que cambiarlo
-
 def main():
     is_dest_id_required = '--upload' in sys.argv or '--encrypt' in sys.argv or 'enc_sign' in sys.argv
     is_source_id_required = '--download' in sys.argv or '--decrypt-and-verify' in sys.argv or '--verify' in sys.argv
