@@ -109,7 +109,8 @@ class SecureBoxClient:
 
             return message
 
-    def decrypt_helper(self, filename: str = None, file_id: str = None, sender_id: str = None, private_key: RsaKey = None) -> None:
+    def decrypt_helper(self, filename: str = None, file_id: str = None, sender_id: str = None,
+                       private_key: RsaKey = None) -> None:
         # Avoid "referenced before assignment" warnings
         message = bytes()
         output_filename = ""
