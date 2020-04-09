@@ -71,6 +71,37 @@ def decrypt_helper(self, filename: str = None, file_id: str = None, sender_id: s
 
 De igual manera creamos esta función para unificar la funcionalidad de descifrar y/o verificar la firma en local con la de descargar archivos de SecureBox. Recibe o la ruta de un fichero o el ID de un fichero almacenado en el servidor de SecureBox. Si recibe un ID de emisor tratará de verificar la firma usando la clave pública del usuario que envió el fichero. Si recibe una clave privada se descifrará el fichero haciendo uso de dicha clave. Además, para mayor velocidad si se ha de descargar un fichero de SecureBox y verificar la firma, se realizará de manera paralela la descarga de la clave pública del emisor.
 
+## Bundle
+
+La clase Bundle, implementada en el fichero del mismo nombre gestiona el archivo de configuración de nuestro cliente, el cual contiene el ID, el token y la clave privada del usuario. Se hace uso de la librería configparser para leer un archivo con un formato similar al siguiente:
+
+```ini
+[SecureBox]
+token = <TOKEN DEL USUARIO>
+key = -----BEGIN RSA PRIVATE KEY-----
+      MIICXAIBAAKBgQDVtiJhzUYhnXUY9BCcTMXZSaiUsA8GYWHVFf+j3+wyM2volQ0/
+      geRSiUykYC33C+jnelX50NMtzPinVHHwBGr+brCbvEe9B4mdQKAQdoX9+Xjrdi6Q
+      ZrtR6Y5/TCXeTD3UOMTbLa0wPI8+ZATJ4JVZRlbD6lVRHHIc2WXFUm8SdQIDAQAB
+      AoGAUkNwyqrkow3kRD22oyOeSPzkio+WyQL1ULvOErugRNasY/P0DI0oYWj+eouX
+      RfBsr6XUsHvkvk2XLXoA/b4FnMSynK65bkbqh63UuHta4gjWpzjQIKhL6055RnQW
+      O27I/vW3PkYpZt6OZeDm916CGANplh5x4i9/FSfVrj5UTkECQQDzRL2hP9GjQpYZ
+      nHWmPVwkHfKSUUQF9isoeT4jqEAB4iSXFIyIxR/FKQP/A082Zno2o/dCPnJgmk3z
+      i4/FpdcFAkEA4OVk/MygJE6sYuR8/QBqgpe039o9M+FbNvRi6AEWtGtQ/EbMzvE1
+      DMNPW2MefKpN+OZ3iTrMFppLoEKRptxIsQJBAOna5hSR/hxc0WBzeOHDUMVjiKHB
+      v4ufluOEkgjDICzvUU9vMJ32KdFl2XKXotlf8BKA0xv6Xgehrlf2jNJq12UCQEr4
+      TYT0VcIks9S3pG7Wr6rfFb21y8c6raSRLVN34XC9gZ7Hn0ixIeUiSpcFYMlgIGQD
+      t/94KUazothGuLUuI9ECQGzfwCA9+6seKLwFhXMuQ+b+peOkxTAlzy3PMGuI+sia
+      oLNl27bvUA6ZCnJK7fG8P81yXbd8hgUeF/H4G4MQFZs=
+      -----END RSA PRIVATE KEY-----
+user_id = <ID DEL USUARIO>
+
+
+```
+
+Así, toda la información está en un sólo fichero que se lee al correr el cliente. De no existir un este fichero, se preguntaría  por pantalla el token, el nombre de usuario y el email y se llamaría automáticamente a la función `create_id`. Esta función generará una clave privada para el usuario y usará la API para registrarle en el servidor, obteniendo su ID.
+
+Además, para añadir un extra de seguridad pensamos en cifrar el bundle usando AES. Cuando se crea éste, se solicita una contraseña para cifrarlo, usando la función `getpass`, que no muestra la contraseña al introducirla. Si no se proporciona una (es decir, si la contraseña es vacía) no se cifrará. De ser cifrada, cada vez que el usuario quiera usar el cliente usando su bundle tendrá que introducirla. 
+
 ## Main
 Como se ha comentado antes, es el punto de entrada a la aplicación y el que el cliente debe ejecutar para tener acceso a toda la funcionalidad. Desde aquí se realiza toda la gestión de argumentos apoyándonos en la librería `argparse`, para después llamar a los distintos métodos de **securebox.py**. En relación al control de argumentos, pueden llamar la atención las dos primeras líneas de la función `main`. Estas sirven para detectar de una forma más limpia y a través del argumento *required* de `argparse` cuándo determinados argumentos son necesarios, evitando tener que hacer comprobaciones externas. Por otro lado, para evitar hacer un try except sobre una zona de código demasiado amplia, se crea la función `main`.
 
