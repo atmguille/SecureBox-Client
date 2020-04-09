@@ -48,7 +48,7 @@ class Bundle:
             self.password = None
 
     def initialization_needed(self) -> bool:
-        # TODO: we could check that all the fields are in the bundle to avoid
+        # TODO: we could check that all the fields are in the bundle
         if "SecureBox" in self.config:
             return False
         else:
