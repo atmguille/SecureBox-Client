@@ -5,7 +5,7 @@ from Crypto.Signature import pkcs1_15
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad, unpad
-from cryptography.exceptions import *
+from sb_crypto.exceptions import *
 
 IV_LEN = 16  # IV is always 16 bytes long when using AES
 

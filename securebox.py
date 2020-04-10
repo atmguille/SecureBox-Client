@@ -2,9 +2,9 @@ import os
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Thread
 
-from api.api import API
-from bundle.bundle import Bundle
-from cryptography.cryptography import *
+from sb_api.sb_api import API
+from sb_bundle.sb_bundle import Bundle
+from sb_crypto.sb_crypto import *
 
 
 class SecureBoxClient:
