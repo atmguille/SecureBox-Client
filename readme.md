@@ -1,5 +1,10 @@
 # SecureBox Client
 
+## Project description
+This project has been developed as part of the subject Communication Networks II, along with [Daniel Gallo Fernández](https://github.com/daniel-gallo).
+
+The main purpose of the project was to develop a client that was able to interact with other clients via a server, so people could exchange files securely. To do that, apart from developing the necessary code to talk with the server via an API, an hybrid cipher was implemented. This cipher uses RSA for the asymmetric part and AES256 in CBC mode as the symmetric cipher.
+
 ## Installation
 Using a virtual environment is highly recommended. To do so:
 - Install `virtualenv` if you do not have it already by running:
