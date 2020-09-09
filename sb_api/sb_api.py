@@ -6,7 +6,7 @@ import requests
 from Crypto.PublicKey import RSA
 from Crypto.PublicKey.RSA import RsaKey
 
-from api.exceptions import *
+from sb_api.exceptions import *
 
 
 class API:

@@ -10,7 +10,7 @@ from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import unpad, pad
 
-from bundle.exceptions import IncorrectPassword
+from sb_bundle.exceptions import IncorrectPassword
 
 
 class Bundle:
@@ -48,7 +48,7 @@ class Bundle:
             self.password = None
 
     def initialization_needed(self) -> bool:
-        # TODO: we could check that all the fields are in the bundle
+        # TODO: we could check that all the fields are in the sb_bundle
         if "SecureBox" in self.config:
             return False
         else:
