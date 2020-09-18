@@ -5,7 +5,7 @@ This project has been developed as part of the subject Communication Networks II
 
 The main purpose of the project was to develop a client that was able to interact with other clients via a server, so people could exchange files securely. To do that, apart from developing the necessary code to talk with the server via an API, an hybrid cipher was implemented. This cipher uses RSA for the asymmetric part and AES256 in CBC mode as the symmetric cipher.
 
-For more info, you can check the Spanish version of the [wiki](https://github.com/atmguille/SecureBox-Client/wiki) of this project.
+For more info, you can check the Spanish version of the [Wiki](https://github.com/atmguille/securebox/wiki) of this project.
 
 ## Installation
 Using a virtual environment is highly recommended. To do so:
